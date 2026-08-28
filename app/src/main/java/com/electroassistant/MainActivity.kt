@@ -462,45 +462,302 @@ fun SectionCableScreen(
                         i <= 63 -> sections[5]
                         i <= 80 -> sections[6]
                         i <= 100 -> sections[7]
-                        i <= 125 -> sections[8]
-                        i <= 160 -> sections[9]
-                        i <= 200 -> sections[10]
-                        i <= 250 -> sections[11]
-                        i <= 315 -> sections[12]
-                        i <= 355 -> sections[13]
-                        else -> sections[14]
+@Composable
+fun SectionCableScreen(
+    onBack: () -> Unit
+) {
+
+    var cuivre by remember { mutableStateOf(true) }
+    var triphase by remember { mutableStateOf(false) }
+
+    var courant by remember { mutableStateOf("") }
+    var longueur by remember { mutableStateOf("") }
+    var tension by remember { mutableStateOf("230") }
+    var chuteMax by remember { mutableStateOf("3") }
+
+    var resultat by remember { mutableStateOf("") }
+
+    // Sections normalisées disponibles
+    val sections = listOf(
+        1.5,
+        2.5,
+        4.0,
+        6.0,
+        10.0,
+        16.0,
+        25.0,
+        35.0,
+        50.0,
+        70.0,
+        95.0,
+        120.0,
+        150.0,
+        185.0,
+        240.0
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(20.dp)
+    ) {
+
+        Text(
+            text = "🔌 Section de câble",
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Button(onClick = onBack) {
+            Text("← Retour")
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text("Matériau du conducteur")
+
+        Row {
+
+            RadioButton(
+                selected = cuivre,
+                onClick = { cuivre = true }
+            )
+
+            Text(
+                "Cuivre",
+                modifier = Modifier.padding(top = 12.dp)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            RadioButton(
+                selected = !cuivre,
+                onClick = { cuivre = false }
+            )
+
+            Text(
+                "Aluminium",
+                modifier = Modifier.padding(top = 12.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Text("Type de réseau")
+
+        Row {
+
+            RadioButton(
+                selected = !triphase,
+                onClick = {
+                    triphase = false
+                    tension = "230"
+                }
+            )
+
+            Text(
+                "Monophasé",
+                modifier = Modifier.padding(top = 12.dp)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            RadioButton(
+                selected = triphase,
+                onClick = {
+                    triphase = true
+                    tension = "400"
+                }
+            )
+
+            Text(
+                "Triphasé",
+                modifier = Modifier.padding(top = 12.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        OutlinedTextField(
+            value = tension,
+            onValueChange = { tension = it },
+            label = { Text("Tension (V)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        OutlinedTextField(
+            value = courant,
+            onValueChange = { courant = it },
+            label = { Text("Courant (A)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        OutlinedTextField(
+            value = longueur,
+            onValueChange = { longueur = it },
+            label = { Text("Longueur du câble (m)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        OutlinedTextField(
+            value = chuteMax,
+            onValueChange = { chuteMax = it },
+            label = { Text("Chute de tension max (%)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Button(
+            onClick = {
+
+                val u = tension.replace(",", ".").toDoubleOrNull()
+                val i = courant.replace(",", ".").toDoubleOrNull()
+                val l = longueur.replace(",", ".").toDoubleOrNull()
+                val maxPercent = chuteMax.replace(",", ".").toDoubleOrNull()
+
+                if (
+                    u != null &&
+                    i != null &&
+                    l != null &&
+                    maxPercent != null &&
+                    u > 0 &&
+                    i > 0 &&
+                    l > 0 &&
+                    maxPercent > 0
+                ) {
+
+                    val rho =
+                        if (cuivre) {
+                            0.0175
+                        } else {
+                            0.0282
+                        }
+
+                    /*
+                     * Valeurs indicatives de courant admissible.
+                     * Elles doivent être confirmées selon le mode
+                     * de pose et les conditions réelles.
+                     */
+                    val courantMax = listOf(
+                        1.5 to 16.0,
+                        2.5 to 20.0,
+                        4.0 to 25.0,
+                        6.0 to 32.0,
+                        10.0 to 50.0,
+                        16.0 to 63.0,
+                        25.0 to 80.0,
+                        35.0 to 100.0,
+                        50.0 to 125.0,
+                        70.0 to 160.0,
+                        95.0 to 200.0,
+                        120.0 to 250.0,
+                        150.0 to 315.0,
+                        185.0 to 355.0,
+                        240.0 to 400.0
+                    )
+
+                    var sectionChoisie: Double? = null
+                    var chuteCalculee = 0.0
+                    var chutePourcent = 0.0
+
+                    for (s in sections) {
+
+                        val courantAdmissible =
+                            courantMax.firstOrNull {
+                                it.first == s
+                            }?.second ?: 0.0
+
+                        if (i > courantAdmissible) {
+                            continue
+                        }
+
+                        val resistance =
+                            rho * l / s
+
+                        val deltaU =
+                            if (triphase) {
+                                sqrt(3.0) * i * resistance
+                            } else {
+                                2.0 * i * resistance
+                            }
+
+                        val percent =
+                            deltaU / u * 100.0
+
+                        if (percent <= maxPercent) {
+
+                            sectionChoisie = s
+                            chuteCalculee = deltaU
+                            chutePourcent = percent
+
+                            break
+                        }
                     }
 
-                    resultat =
-                        "Section indicative : %.1f mm²\n\n".format(section) +
-                        "Matériau : ${if (cuivre) "Cuivre" else "Aluminium"}\n" +
-                        "Courant : %.1f A\n".format(i) +
-                        "Longueur : $longueur m\n\n" +
-                        "⚠️ Vérification du mode de pose et de la chute de tension nécessaire."
+                    if (sectionChoisie != null) {
+
+                        resultat =
+                            "✅ Section recommandée\n\n" +
+                            "Matériau : ${if (cuivre) "Cuivre" else "Aluminium"}\n" +
+                            "Réseau : ${if (triphase) "Triphasé" else "Monophasé"}\n" +
+                            "Courant : %.1f A\n".format(i) +
+                            "Longueur : %.1f m\n".format(l) +
+                            "Chute maximale : %.1f %%\n\n".format(maxPercent) +
+                            "👉 Section : %.1f mm²\n\n".format(sectionChoisie) +
+                            "Chute calculée : %.2f V\n".format(chuteCalculee) +
+                            "Chute calculée : %.2f %%".format(chutePourcent)
+
+                    } else {
+
+                        resultat =
+                            "⚠️ Aucune section de la liste ne respecte " +
+                            "les conditions saisies."
+                    }
 
                 } else {
 
-                    resultat = "⚠️ Entre un courant valide."
+                    resultat =
+                        "⚠️ Vérifie les valeurs saisies."
                 }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("🔍 Déterminer la section")
+            Text("🧮 Calculer la section")
         }
 
         Spacer(modifier = Modifier.height(20.dp))
 
         if (resultat.isNotEmpty()) {
+
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 tonalElevation = 4.dp
             ) {
+
                 Text(
-                    resultat,
+                    text = resultat,
                     modifier = Modifier.padding(16.dp)
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = "⚠️ Résultat indicatif : le choix final doit tenir compte " +
+                    "du mode de pose, de la température, du regroupement " +
+                    "des câbles et des règles électriques applicables.",
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 }
 
