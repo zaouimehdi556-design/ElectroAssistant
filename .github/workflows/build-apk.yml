@@ -1,4 +1,4 @@
-name: Build APK
+name: ElectroAssistant Build
 
 on:
   workflow_dispatch:
