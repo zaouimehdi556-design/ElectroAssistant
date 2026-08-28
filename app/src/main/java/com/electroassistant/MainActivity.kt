@@ -16,11 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import kotlin.math.sqrt
-
-// ============================================================
-// MAIN
-// ============================================================
 
 class MainActivity : ComponentActivity() {
 
@@ -33,18 +28,18 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// ============================================================
-// APP
-// ============================================================
-
 @Composable
 fun ElectroAssistantApp() {
 
-    var page by remember {
-        mutableStateOf("home")
-    }
+    var page by remember { mutableStateOf("home") }
 
-    MaterialTheme {
+    MaterialTheme(
+        colorScheme = lightColorScheme(
+            primary = Color(0xFF1565C0),
+            secondary = Color(0xFF00A6A6),
+            background = Color(0xFFF5F7FA)
+        )
+    ) {
 
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -54,55 +49,39 @@ fun ElectroAssistantApp() {
             when (page) {
 
                 "home" -> HomeScreen(
-                    onChute = {
-                        page = "chute"
-                    },
-                    onSection = {
-                        page = "section"
-                    },
-                    onDisjoncteur = {
-                        page = "disjoncteur"
-                    },
-                    onPdf = {
-                        page = "pdf"
-                    }
+                    onChute = { page = "chute" },
+                    onSection = { page = "section" },
+                    onDisjoncteur = { page = "disjoncteur" },
+                    onPdf = { page = "pdf" }
                 )
 
                 "chute" -> ChuteTensionScreen(
-                    onBack = {
-                        page = "home"
-                    }
+                    onBack = { page = "home" }
                 )
 
                 "section" -> SectionCableScreen(
-                    onBack = {
-                        page = "home"
-                    }
+                    onBack = { page = "home" }
                 )
 
                 "disjoncteur" -> ComingSoonScreen(
                     title = "🛡️ Calibre disjoncteur",
-                    description = "Cette fonction sera ajoutée dans la prochaine étape.",
-                    onBack = {
-                        page = "home"
-                    }
+                    description = "Détermination du calibre adapté du disjoncteur.",
+                    onBack = { page = "home" }
                 )
 
                 "pdf" -> ComingSoonScreen(
                     title = "📄 Analyse de plan PDF",
-                    description = "L'analyse intelligente des plans électriques sera ajoutée prochainement.",
-                    onBack = {
-                        page = "home"
-                    }
+                    description = "Analyse intelligente des plans électriques.",
+                    onBack = { page = "home" }
                 )
             }
         }
     }
 }
 
-// ============================================================
-// HOME
-// ============================================================
+/* =========================================================
+   ACCUEIL
+   ========================================================= */
 
 @Composable
 fun HomeScreen(
@@ -118,35 +97,51 @@ fun HomeScreen(
             .verticalScroll(rememberScrollState())
     ) {
 
-        // HEADER
+        /* HEADER */
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFF1565C0))
-                .padding(24.dp)
+                .padding(
+                    start = 24.dp,
+                    end = 24.dp,
+                    top = 35.dp,
+                    bottom = 30.dp
+                )
         ) {
 
-            Text(
-                text = "⚡",
-                style = MaterialTheme.typography.displaySmall
-            )
+            Column {
 
-            Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "⚡",
+                    style = MaterialTheme.typography.displayMedium
+                )
 
-            Text(
-                text = "ElectroAssistant",
-                color = Color.White,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "ElectroAssistant",
+                    color = Color.White,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
 
-            Text(
-                text = "Assistant technique • Électricité bâtiment",
-                color = Color.White.copy(alpha = 0.85f)
-            )
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = "Assistant technique • Électricité bâtiment",
+                    color = Color.White.copy(alpha = 0.85f)
+                )
+
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Text(
+                    text = "Dimensionnez vos installations plus simplement.",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         }
 
         Column(
@@ -159,7 +154,7 @@ fun HomeScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
             Text(
                 text = "Sélectionnez l'outil dont vous avez besoin.",
@@ -180,7 +175,7 @@ fun HomeScreen(
             ToolCard(
                 emoji = "🔌",
                 title = "Section de câble",
-                description = "Déterminer une section de câble adaptée.",
+                description = "Déterminer la section du conducteur.",
                 onClick = onSection
             )
 
@@ -189,7 +184,7 @@ fun HomeScreen(
             ToolCard(
                 emoji = "🛡️",
                 title = "Calibre disjoncteur",
-                description = "Déterminer le calibre du disjoncteur.",
+                description = "Choisir le calibre adapté.",
                 onClick = onDisjoncteur
             )
 
@@ -198,7 +193,7 @@ fun HomeScreen(
             ToolCard(
                 emoji = "📄",
                 title = "Analyser un plan PDF",
-                description = "Analyser un plan électrique.",
+                description = "Analyse intelligente d'un plan électrique.",
                 onClick = onPdf
             )
 
@@ -206,28 +201,44 @@ fun HomeScreen(
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                )
             ) {
 
                 Column(
-                    modifier = Modifier.padding(18.dp)
+                    modifier = Modifier.padding(20.dp)
                 ) {
 
                     Text(
                         text = "💡 À propos",
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleMedium
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "ElectroAssistant est un outil d'aide au pré-dimensionnement électrique pour les installations bâtiment.",
+                        text = "ElectroAssistant est un outil d'aide au "
+                                + "pré-dimensionnement des installations "
+                                + "électriques du bâtiment.",
                         color = Color.Gray
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = "⚠️ Les résultats doivent être vérifiés "
+                                + "selon les normes et les conditions réelles "
+                                + "de l'installation.",
+                        color = Color(0xFF795548),
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(25.dp))
 
             Text(
                 text = "ElectroAssistant • Version 1.0",
@@ -235,13 +246,15 @@ fun HomeScreen(
                 textAlign = TextAlign.Center,
                 color = Color.Gray
             )
+
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
 
-// ============================================================
-// TOOL CARD
-// ============================================================
+/* =========================================================
+   CARTE OUTIL
+   ========================================================= */
 
 @Composable
 fun ToolCard(
@@ -253,9 +266,12 @@ fun ToolCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
         )
     ) {
 
@@ -268,10 +284,10 @@ fun ToolCard(
 
             Box(
                 modifier = Modifier
-                    .size(54.dp)
+                    .size(55.dp)
                     .background(
                         Color(0xFFE3F2FD),
-                        RoundedCornerShape(14.dp)
+                        RoundedCornerShape(16.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
@@ -314,37 +330,25 @@ fun ToolCard(
     }
 }
 
-// ============================================================
-// SECTION CABLE
-// ============================================================
+/* =========================================================
+   SECTION CÂBLE
+   ========================================================= */
 
 @Composable
 fun SectionCableScreen(
     onBack: () -> Unit
 ) {
 
-    var triphase by remember {
-        mutableStateOf(false)
-    }
+    var triphase by remember { mutableStateOf(false) }
+    var cuivre by remember { mutableStateOf(true) }
 
-    var cuivre by remember {
-        mutableStateOf(true)
-    }
+    var courant by remember { mutableStateOf("") }
+    var longueur by remember { mutableStateOf("") }
+    var cosPhi by remember { mutableStateOf("0.90") }
+    var chuteMax by remember { mutableStateOf("5") }
 
-    var courant by remember {
-        mutableStateOf("")
-    }
-
-    var longueur by remember {
-        mutableStateOf("")
-    }
-
-    var cosPhi by remember {
-        mutableStateOf("0.90")
-    }
-
-    var chuteMax by remember {
-        mutableStateOf("5")
+    var loadType by remember {
+        mutableStateOf(LoadType.POWER)
     }
 
     var installation by remember {
@@ -394,8 +398,6 @@ fun SectionCableScreen(
             fontWeight = FontWeight.Bold
         )
 
-        Spacer(modifier = Modifier.height(4.dp))
-
         Text(
             text = "Pré-dimensionnement du conducteur",
             color = Color.Gray
@@ -403,16 +405,10 @@ fun SectionCableScreen(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        // ====================================================
-        // CIRCUIT
-        // ====================================================
-
-        SectionCard(
-            title = "⚡ Circuit"
-        ) {
+        SectionCard("⚡ Circuit") {
 
             Text(
-                text = "Type de circuit",
+                "Type de circuit",
                 fontWeight = FontWeight.Bold
             )
 
@@ -422,20 +418,16 @@ fun SectionCableScreen(
 
                 RadioButton(
                     selected = !triphase,
-                    onClick = {
-                        triphase = false
-                    }
+                    onClick = { triphase = false }
                 )
 
                 Text("Monophasé")
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(8.dp))
 
                 RadioButton(
                     selected = triphase,
-                    onClick = {
-                        triphase = true
-                    }
+                    onClick = { triphase = true }
                 )
 
                 Text("Triphasé")
@@ -444,7 +436,7 @@ fun SectionCableScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Matériau",
+                "Matériau",
                 fontWeight = FontWeight.Bold
             )
 
@@ -454,20 +446,16 @@ fun SectionCableScreen(
 
                 RadioButton(
                     selected = cuivre,
-                    onClick = {
-                        cuivre = true
-                    }
+                    onClick = { cuivre = true }
                 )
 
                 Text("Cuivre")
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(8.dp))
 
                 RadioButton(
                     selected = !cuivre,
-                    onClick = {
-                        cuivre = false
-                    }
+                    onClick = { cuivre = false }
                 )
 
                 Text("Aluminium")
@@ -476,13 +464,56 @@ fun SectionCableScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // ====================================================
-        // DONNEES
-        // ====================================================
+        SectionCard("📊 Charge") {
 
-        SectionCard(
-            title = "📏 Données électriques"
-        ) {
+            Text(
+                "Type de charge",
+                fontWeight = FontWeight.Bold
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                RadioButton(
+                    selected = loadType == LoadType.LIGHTING,
+                    onClick = {
+                        loadType = LoadType.LIGHTING
+                    }
+                )
+
+                Text("Éclairage")
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                RadioButton(
+                    selected = loadType == LoadType.POWER,
+                    onClick = {
+                        loadType = LoadType.POWER
+                    }
+                )
+
+                Text("Prises / puissance")
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                RadioButton(
+                    selected = loadType == LoadType.MOTOR,
+                    onClick = {
+                        loadType = LoadType.MOTOR
+                    }
+                )
+
+                Text("Moteur")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = courant,
@@ -490,10 +521,9 @@ fun SectionCableScreen(
                     courant = it
                     erreur = ""
                 },
-                label = {
-                    Text("Courant I (A)")
-                },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Courant (A)") },
+                singleLine = true
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -504,10 +534,9 @@ fun SectionCableScreen(
                     longueur = it
                     erreur = ""
                 },
-                label = {
-                    Text("Longueur L (m)")
-                },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Longueur (m)") },
+                singleLine = true
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -518,10 +547,9 @@ fun SectionCableScreen(
                     cosPhi = it
                     erreur = ""
                 },
-                label = {
-                    Text("cos φ")
-                },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("cos φ") },
+                singleLine = true
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -532,71 +560,72 @@ fun SectionCableScreen(
                     chuteMax = it
                     erreur = ""
                 },
-                label = {
-                    Text("Chute maximale (%)")
-                },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Chute max (%)") },
+                singleLine = true
             )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // ====================================================
-        // MODE DE POSE
-        // ====================================================
+        SectionCard("🔧 Installation") {
 
-        SectionCard(
-            title = "🏗️ Installation"
-        ) {
+            Text(
+                "Mode de pose",
+                fontWeight = FontWeight.Bold
+            )
 
-            DropdownField(
-                label = "Mode de pose",
-                selected = installationLabel(installation),
-                options = listOf(
-                    "A1",
-                    "A2",
-                    "B1",
-                    "B2",
-                    "C",
-                    "D1",
-                    "E",
-                    "F"
-                ),
+            Spacer(modifier = Modifier.height(8.dp))
+
+            InstallationSelector(
+                selected = installation,
                 onSelected = {
-                    installation = installationFromLabel(it)
+                    installation = it
                 }
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            DropdownField(
-                label = "Isolation",
-                selected = insulationLabel(isolation),
-                options = listOf(
-                    "PVC",
-                    "XLPE"
-                ),
-                onSelected = {
-                    isolation = if (it == "PVC") {
-                        Insulation.PVC
-                    } else {
-                        Insulation.XLPE
+            Text(
+                "Isolation",
+                fontWeight = FontWeight.Bold
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                RadioButton(
+                    selected = isolation == Insulation.PVC,
+                    onClick = {
+                        isolation = Insulation.PVC
                     }
-                }
-            )
+                )
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Text("PVC")
+
+                Spacer(modifier = Modifier.width(15.dp))
+
+                RadioButton(
+                    selected = isolation == Insulation.XLPE,
+                    onClick = {
+                        isolation = Insulation.XLPE
+                    }
+                )
+
+                Text("XLPE")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
                 value = conducteurs,
                 onValueChange = {
                     conducteurs = it
-                    erreur = ""
                 },
-                label = {
-                    Text("Conducteurs chargés")
-                },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Conducteurs chargés") },
+                singleLine = true
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -605,12 +634,10 @@ fun SectionCableScreen(
                 value = temperature,
                 onValueChange = {
                     temperature = it
-                    erreur = ""
                 },
-                label = {
-                    Text("Température ambiante (°C)")
-                },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Température ambiante (°C)") },
+                singleLine = true
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -619,264 +646,195 @@ fun SectionCableScreen(
                 value = grouped,
                 onValueChange = {
                     grouped = it
-                    erreur = ""
                 },
-                label = {
-                    Text("Circuits groupés")
-                },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Circuits groupés") },
+                singleLine = true
             )
         }
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        // ====================================================
-        // ERREUR
-        // ====================================================
+        Button(
+            onClick = {
+
+                try {
+
+                    val currentValue =
+                        courant.toDouble()
+
+                    val lengthValue =
+                        longueur.toDouble()
+
+                    val cosValue =
+                        cosPhi.toDouble()
+
+                    val maxDrop =
+                        chuteMax.toDouble()
+
+                    val conductorValue =
+                        conducteurs.toInt()
+
+                    val tempValue =
+                        temperature.toDouble()
+
+                    val groupedValue =
+                        grouped.toInt()
+
+                    val input = CableSizingInput(
+                        material =
+                            if (cuivre)
+                                Material.COPPER
+                            else
+                                Material.ALUMINIUM,
+
+                        phase =
+                            if (triphase)
+                                Phase.THREE_PHASE
+                            else
+                                Phase.SINGLE_PHASE,
+
+                        loadType = loadType,
+
+                        current = currentValue,
+
+                        length = lengthValue,
+
+                        maxVoltageDropPercent = maxDrop,
+
+                        cosPhi = cosValue,
+
+                        installationMethod = installation,
+
+                        insulation = isolation,
+
+                        loadedConductors = conductorValue,
+
+                        ambientTemperature = tempValue,
+
+                        groupedCircuits = groupedValue
+                    )
+
+                    resultat =
+                        calculateCableSizing(input)
+
+                    if (resultat == null) {
+                        erreur =
+                            "Aucune section adaptée trouvée avec ces paramètres."
+                    } else {
+                        erreur = ""
+                    }
+
+                } catch (e: Exception) {
+
+                    resultat = null
+
+                    erreur =
+                        "Veuillez vérifier les valeurs saisies."
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(55.dp),
+            shape = RoundedCornerShape(15.dp)
+        ) {
+
+            Text(
+                "CALCULER LA SECTION",
+                fontWeight = FontWeight.Bold
+            )
+        }
 
         if (erreur.isNotEmpty()) {
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
                     containerColor = Color(0xFFFFEBEE)
                 ),
-                shape = RoundedCornerShape(14.dp)
+                shape = RoundedCornerShape(15.dp)
             ) {
 
                 Text(
-                    text = erreur,
+                    text = "⚠️ $erreur",
                     modifier = Modifier.padding(16.dp),
                     color = Color(0xFFC62828)
                 )
             }
-
-            Spacer(modifier = Modifier.height(12.dp))
         }
-
-        // ====================================================
-        // BUTTON
-        // ====================================================
-
-        Button(
-            onClick = {
-
-                val currentValue =
-                    courant.replace(',', '.').toDoubleOrNull()
-
-                val lengthValue =
-                    longueur.replace(',', '.').toDoubleOrNull()
-
-                val cosValue =
-                    cosPhi.replace(',', '.').toDoubleOrNull()
-
-                val maxDropValue =
-                    chuteMax.replace(',', '.').toDoubleOrNull()
-
-                val tempValue =
-                    temperature.replace(',', '.').toDoubleOrNull()
-
-                val groupedValue =
-                    grouped.toIntOrNull()
-
-                val conductorsValue =
-                    conducteurs.toIntOrNull()
-
-                if (
-                    currentValue == null ||
-                    lengthValue == null ||
-                    cosValue == null ||
-                    maxDropValue == null ||
-                    tempValue == null ||
-                    groupedValue == null ||
-                    conductorsValue == null
-                ) {
-
-                    erreur = "⚠️ Vérifiez les valeurs saisies."
-                    resultat = null
-
-                } else {
-
-                    val input = CableSizingInput(
-                        material = if (cuivre) {
-                            Material.COPPER
-                        } else {
-                            Material.ALUMINIUM
-                        },
-                        phase = if (triphase) {
-                            Phase.THREE_PHASE
-                        } else {
-                            Phase.SINGLE_PHASE
-                        },
-                        loadType = LoadType.POWER,
-                        current = currentValue,
-                        length = lengthValue,
-                        maxVoltageDropPercent = maxDropValue,
-                        cosPhi = cosValue,
-                        installationMethod = installation,
-                        insulation = isolation,
-                        loadedConductors = conductorsValue,
-                        ambientTemperature = tempValue,
-                        groupedCircuits = groupedValue
-                    )
-
-                    val result =
-                        calculateCableSizing(input)
-
-                    if (result == null) {
-
-                        erreur =
-                            "⚠️ Aucune section adaptée trouvée. Vérifiez les paramètres."
-
-                        resultat = null
-
-                    } else {
-
-                        erreur = ""
-                        resultat = result
-                    }
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp),
-            shape = RoundedCornerShape(14.dp)
-        ) {
-
-            Text(
-                text = "Calculer la section",
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Spacer(modifier = Modifier.height(18.dp))
-
-        // ====================================================
-        // RESULT
-        // ====================================================
 
         resultat?.let { result ->
 
-            ResultCard(
-                result = result
-            )
+            Spacer(modifier = Modifier.height(18.dp))
+
+            ResultCard(result)
         }
 
         Spacer(modifier = Modifier.height(30.dp))
     }
 }
 
-// ============================================================
-// SECTION CARD
-// ============================================================
+/* =========================================================
+   SELECTEUR MODE DE POSE
+   ========================================================= */
 
 @Composable
-fun SectionCard(
-    title: String,
-    content: @Composable ColumnScope.() -> Unit
-) {
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        )
-    ) {
-
-        Column(
-            modifier = Modifier.padding(16.dp),
-            content = content
-        ) {
-
-            Text(
-                text = title,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            content()
-        }
-    }
-}
-
-// ============================================================
-// DROPDOWN
-// ============================================================
-
-@Composable
-fun DropdownField(
-    label: String,
-    selected: String,
-    options: List<String>,
-    onSelected: (String) -> Unit
+fun InstallationSelector(
+    selected: InstallationMethod,
+    onSelected: (InstallationMethod) -> Unit
 ) {
 
     var expanded by remember {
         mutableStateOf(false)
     }
 
-    Column {
+    Box {
 
-        Text(
-            text = label,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        Box(
+        OutlinedButton(
+            onClick = {
+                expanded = true
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
 
-            OutlinedButton(
-                onClick = {
-                    expanded = true
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            ) {
+            Text(
+                "Mode ${selected.name}"
+            )
+        }
 
-                Text(
-                    text = selected,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Start
-                )
-
-                Text("▼")
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {
+                expanded = false
             }
+        ) {
 
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = {
-                    expanded = false
-                }
-            ) {
-
-                options.forEach { option ->
+            InstallationMethod.values()
+                .forEach { method ->
 
                     DropdownMenuItem(
                         text = {
-                            Text(option)
+                            Text(
+                                "Mode ${method.name}"
+                            )
                         },
                         onClick = {
 
-                            onSelected(option)
+                            onSelected(method)
 
                             expanded = false
                         }
                     )
                 }
-            }
         }
     }
 }
 
-// ============================================================
-// RESULT CARD
-// ============================================================
+/* =========================================================
+   RESULTAT
+   ========================================================= */
 
 @Composable
 fun ResultCard(
@@ -887,7 +845,10 @@ fun ResultCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFE8F5E9)
+            containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 4.dp
         )
     ) {
 
@@ -901,7 +862,7 @@ fun ResultCard(
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(15.dp))
 
             Text(
                 text = "Section recommandée",
@@ -909,66 +870,63 @@ fun ResultCard(
             )
 
             Text(
-                text = "${formatNumber(result.section)} mm²",
+                text = "${result.section} mm²",
                 style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF1565C0)
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(15.dp))
 
             ResultLine(
-                label = "Chute de tension",
-                value = "${formatNumber(result.voltageDropVolts)} V"
-            )
-
-            ResultLine(
-                label = "Chute en %",
-                value = "${formatNumber(result.voltageDropPercent)} %"
+                "Chute de tension",
+                "${"%.2f".format(result.voltageDropVolts)} V"
             )
 
             ResultLine(
-                label = "Résistance",
-                value = "${formatNumber(result.resistance)} Ω"
+                "Pourcentage",
+                "${"%.2f".format(result.voltageDropPercent)} %"
             )
 
             ResultLine(
-                label = "Facteur correction",
-                value = formatNumber(result.correctionFactor)
+                "Résistance",
+                "${"%.5f".format(result.resistance)} Ω"
+            )
+
+            ResultLine(
+                "Facteur correction",
+                "${"%.2f".format(result.correctionFactor)}"
             )
 
             result.warning?.let {
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
                     text = it,
-                    color = Color(0xFFE65100),
-                    fontWeight = FontWeight.Bold
+                    color = Color(0xFF795548),
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }
     }
 }
 
-// ============================================================
-// RESULT LINE
-// ============================================================
-
 @Composable
 fun ResultLine(
-    label: String,
+    title: String,
     value: String
 ) {
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 5.dp),
+            .padding(vertical = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
 
         Text(
-            text = label,
+            text = title,
             color = Color.Gray
         )
 
@@ -979,32 +937,55 @@ fun ResultLine(
     }
 }
 
-// ============================================================
-// CHUTE TENSION
-// ============================================================
+/* =========================================================
+   CARD GENERIQUE
+   ========================================================= */
+
+@Composable
+fun SectionCard(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit
+) {
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
+    ) {
+
+        Column(
+            modifier = Modifier.padding(18.dp)
+        ) {
+
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            content()
+        }
+    }
+}
+
+/* =========================================================
+   CHUTE DE TENSION
+   ========================================================= */
 
 @Composable
 fun ChuteTensionScreen(
     onBack: () -> Unit
 ) {
 
-    var triphase by remember {
-        mutableStateOf(false)
-    }
-
-    var cuivre by remember {
-        mutableStateOf(true)
-    }
-
-    var tension by remember {
-        mutableStateOf("230")
-    }
-
-    var courant by remember {
+    var current by remember {
         mutableStateOf("")
     }
 
-    var longueur by remember {
+    var length by remember {
         mutableStateOf("")
     }
 
@@ -1012,12 +993,8 @@ fun ChuteTensionScreen(
         mutableStateOf("2.5")
     }
 
-    var cosPhi by remember {
-        mutableStateOf("0.90")
-    }
-
-    var resultat by remember {
-        mutableStateOf("")
+    var result by remember {
+        mutableStateOf<String?>(null)
     }
 
     Column(
@@ -1034,108 +1011,44 @@ fun ChuteTensionScreen(
         }
 
         Text(
-            text = "📐 Chute de tension",
+            "📐 Chute de tension",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
 
-        Spacer(modifier = Modifier.height(18.dp))
+        Text(
+            "Calcul rapide de la chute de tension",
+            color = Color.Gray
+        )
 
-        SectionCard(
-            title = "⚡ Paramètres"
-        ) {
+        Spacer(modifier = Modifier.height(20.dp))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                RadioButton(
-                    selected = !triphase,
-                    onClick = {
-                        triphase = false
-                        tension = "230"
-                    }
-                )
-
-                Text("Monophasé")
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                RadioButton(
-                    selected = triphase,
-                    onClick = {
-                        triphase = true
-                        tension = "400"
-                    }
-                )
-
-                Text("Triphasé")
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                RadioButton(
-                    selected = cuivre,
-                    onClick = {
-                        cuivre = true
-                    }
-                )
-
-                Text("Cuivre")
-
-                Spacer(modifier = Modifier.width(10.dp))
-
-                RadioButton(
-                    selected = !cuivre,
-                    onClick = {
-                        cuivre = false
-                    }
-                )
-
-                Text("Aluminium")
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
+        SectionCard("Paramètres") {
 
             OutlinedTextField(
-                value = tension,
+                value = current,
                 onValueChange = {
-                    tension = it
+                    current = it
                 },
+                modifier = Modifier.fillMaxWidth(),
                 label = {
-                    Text("Tension (V)")
+                    Text("Courant (A)")
                 },
-                modifier = Modifier.fillMaxWidth()
+                singleLine = true
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
             OutlinedTextField(
-                value = courant,
+                value = length,
                 onValueChange = {
-                    courant = it
+                    length = it
                 },
+                modifier = Modifier.fillMaxWidth(),
                 label = {
-                    Text("Courant I (A)")
+                    Text("Longueur (m)")
                 },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            OutlinedTextField(
-                value = longueur,
-                onValueChange = {
-                    longueur = it
-                },
-                label = {
-                    Text("Longueur L (m)")
-                },
-                modifier = Modifier.fillMaxWidth()
+                singleLine = true
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -1145,23 +1058,11 @@ fun ChuteTensionScreen(
                 onValueChange = {
                     section = it
                 },
+                modifier = Modifier.fillMaxWidth(),
                 label = {
                     Text("Section (mm²)")
                 },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            OutlinedTextField(
-                value = cosPhi,
-                onValueChange = {
-                    cosPhi = it
-                },
-                label = {
-                    Text("cos φ")
-                },
-                modifier = Modifier.fillMaxWidth()
+                singleLine = true
             )
         }
 
@@ -1170,100 +1071,59 @@ fun ChuteTensionScreen(
         Button(
             onClick = {
 
-                val u =
-                    tension.replace(',', '.').toDoubleOrNull()
+                try {
 
-                val i =
-                    courant.replace(',', '.').toDoubleOrNull()
+                    val i = current.toDouble()
+                    val l = length.toDouble()
+                    val s = section.toDouble()
 
-                val l =
-                    longueur.replace(',', '.').toDoubleOrNull()
-
-                val s =
-                    section.replace(',', '.').toDoubleOrNull()
-
-                val cos =
-                    cosPhi.replace(',', '.').toDoubleOrNull()
-
-                if (
-                    u != null &&
-                    i != null &&
-                    l != null &&
-                    s != null &&
-                    cos != null &&
-                    u > 0 &&
-                    i >= 0 &&
-                    l >= 0 &&
-                    s > 0 &&
-                    cos > 0 &&
-                    cos <= 1
-                ) {
-
-                    val rho =
-                        if (cuivre) {
-                            0.0175
-                        } else {
-                            0.0282
-                        }
+                    val rho = 0.0175
 
                     val resistance =
                         rho * l / s
 
-                    val deltaU =
-                        if (triphase) {
-
-                            sqrt(3.0) *
-                                    i *
-                                    resistance *
-                                    cos
-
-                        } else {
-
-                            2.0 *
-                                    i *
-                                    resistance *
-                                    cos
-                        }
+                    val voltageDrop =
+                        2.0 * i * resistance
 
                     val percent =
-                        deltaU / u * 100.0
+                        voltageDrop / 230.0 * 100.0
 
-                    resultat =
-                        "ΔU = ${formatNumber(deltaU)} V\n" +
-                                "Chute = ${formatNumber(percent)} %"
+                    result =
+                        "ΔU = %.2f V\nΔU = %.2f %%"
+                            .format(
+                                voltageDrop,
+                                percent
+                            )
 
-                } else {
+                } catch (e: Exception) {
 
-                    resultat =
+                    result =
                         "⚠️ Vérifiez les valeurs saisies."
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(54.dp),
-            shape = RoundedCornerShape(14.dp)
+                .height(55.dp),
+            shape = RoundedCornerShape(15.dp)
         ) {
 
             Text(
-                text = "Calculer",
+                "CALCULER",
                 fontWeight = FontWeight.Bold
             )
         }
 
-        if (resultat.isNotEmpty()) {
+        result?.let {
 
             Spacer(modifier = Modifier.height(18.dp))
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFE3F2FD)
-                )
+                shape = RoundedCornerShape(18.dp)
             ) {
 
                 Text(
-                    text = resultat,
+                    text = it,
                     modifier = Modifier.padding(20.dp),
                     fontWeight = FontWeight.Bold
                 )
@@ -1272,9 +1132,9 @@ fun ChuteTensionScreen(
     }
 }
 
-// ============================================================
-// COMING SOON
-// ============================================================
+/* =========================================================
+   COMING SOON
+   ========================================================= */
 
 @Composable
 fun ComingSoonScreen(
@@ -1286,412 +1146,57 @@ fun ComingSoonScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .verticalScroll(rememberScrollState())
+            .padding(20.dp)
     ) {
 
         TextButton(
-            onClick = onBack,
-            modifier = Modifier.fillMaxWidth()
+            onClick = onBack
         ) {
-            Text(
-                text = "← Retour",
-                modifier = Modifier.fillMaxWidth()
-            )
+            Text("← Retour")
         }
 
-        Spacer(modifier = Modifier.height(80.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(22.dp)
+        ) {
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                modifier = Modifier.padding(25.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-        Text(
-            text = description,
-            color = Color.Gray,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(25.dp))
-
-        Text(
-            text = "🚧",
-            style = MaterialTheme.typography.displaySmall
-        )
-    }
-}
-
-// ============================================================
-// DATA
-// ============================================================
-
-enum class Material {
-    COPPER,
-    ALUMINIUM
-}
-
-enum class Phase {
-    SINGLE_PHASE,
-    THREE_PHASE
-}
-
-enum class LoadType {
-    LIGHTING,
-    POWER,
-    MOTOR
-}
-
-enum class InstallationMethod {
-    A1,
-    A2,
-    B1,
-    B2,
-    C,
-    D1,
-    E,
-    F
-}
-
-enum class Insulation {
-    PVC,
-    XLPE
-}
-
-data class CableSizingInput(
-    val material: Material,
-    val phase: Phase,
-    val loadType: LoadType,
-    val current: Double,
-    val length: Double,
-    val maxVoltageDropPercent: Double,
-    val cosPhi: Double,
-    val installationMethod: InstallationMethod,
-    val insulation: Insulation,
-    val loadedConductors: Int,
-    val ambientTemperature: Double,
-    val groupedCircuits: Int
-)
-
-data class CableSizingResult(
-    val section: Double,
-    val voltageDropVolts: Double,
-    val voltageDropPercent: Double,
-    val resistance: Double,
-    val correctionFactor: Double,
-    val warning: String?
-)
-
-// ============================================================
-// CALCULATION
-// ============================================================
-
-fun calculateCableSizing(
-    input: CableSizingInput
-): CableSizingResult? {
-
-    if (
-        input.current <= 0 ||
-        input.length <= 0 ||
-        input.cosPhi <= 0 ||
-        input.cosPhi > 1 ||
-        input.maxVoltageDropPercent <= 0 ||
-        input.groupedCircuits < 1 ||
-        input.loadedConductors < 1
-    ) {
-        return null
-    }
-
-    val sections = listOf(
-        1.5,
-        2.5,
-        4.0,
-        6.0,
-        10.0,
-        16.0,
-        25.0,
-        35.0,
-        50.0,
-        70.0,
-        95.0,
-        120.0,
-        150.0,
-        185.0,
-        240.0
-    )
-
-    val rho =
-        if (input.material == Material.COPPER) {
-            0.0175
-        } else {
-            0.0282
-        }
-
-    val temperatureFactor =
-        when (input.insulation) {
-
-            Insulation.PVC -> when {
-                input.ambientTemperature <= 30 -> 1.00
-                input.ambientTemperature <= 35 -> 0.94
-                input.ambientTemperature <= 40 -> 0.87
-                input.ambientTemperature <= 45 -> 0.79
-                input.ambientTemperature <= 50 -> 0.71
-                input.ambientTemperature <= 55 -> 0.61
-                input.ambientTemperature <= 60 -> 0.50
-                else -> 0.0
-            }
-
-            Insulation.XLPE -> when {
-                input.ambientTemperature <= 30 -> 1.00
-                input.ambientTemperature <= 35 -> 0.96
-                input.ambientTemperature <= 40 -> 0.91
-                input.ambientTemperature <= 45 -> 0.87
-                input.ambientTemperature <= 50 -> 0.82
-                input.ambientTemperature <= 55 -> 0.76
-                input.ambientTemperature <= 60 -> 0.71
-                input.ambientTemperature <= 65 -> 0.65
-                input.ambientTemperature <= 70 -> 0.58
-                input.ambientTemperature <= 75 -> 0.50
-                input.ambientTemperature <= 80 -> 0.41
-                else -> 0.0
-            }
-        }
-
-    if (temperatureFactor <= 0) {
-        return null
-    }
-
-    val groupingFactor =
-        when {
-
-            input.groupedCircuits <= 1 -> 1.00
-            input.groupedCircuits == 2 -> 0.80
-            input.groupedCircuits == 3 -> 0.70
-            input.groupedCircuits == 4 -> 0.65
-            input.groupedCircuits <= 6 -> 0.57
-            input.groupedCircuits <= 9 -> 0.50
-            input.groupedCircuits <= 12 -> 0.45
-            else -> 0.40
-        }
-
-    val correctionFactor =
-        temperatureFactor * groupingFactor
-
-    val baseCurrent =
-        when (input.material) {
-
-            Material.COPPER -> when (input.installationMethod) {
-
-                InstallationMethod.A1 -> listOf(
-                    1.5 to 14.0,
-                    2.5 to 18.5,
-                    4.0 to 25.0,
-                    6.0 to 32.0,
-                    10.0 to 44.0,
-                    16.0 to 59.0,
-                    25.0 to 77.0,
-                    35.0 to 96.0,
-                    50.0 to 117.0,
-                    70.0 to 149.0,
-                    95.0 to 179.0,
-                    120.0 to 206.0,
-                    150.0 to 236.0,
-                    185.0 to 268.0,
-                    240.0 to 315.0
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
                 )
 
-                InstallationMethod.B1 -> listOf(
-                    1.5 to 17.5,
-                    2.5 to 24.0,
-                    4.0 to 32.0,
-                    6.0 to 41.0,
-                    10.0 to 57.0,
-                    16.0 to 76.0,
-                    25.0 to 101.0,
-                    35.0 to 125.0,
-                    50.0 to 150.0,
-                    70.0 to 192.0,
-                    95.0 to 232.0,
-                    120.0 to 269.0,
-                    150.0 to 309.0,
-                    185.0 to 353.0,
-                    240.0 to 415.0
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Text(
+                    text = description,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
                 )
 
-                else -> listOf(
-                    1.5 to 18.5,
-                    2.5 to 25.0,
-                    4.0 to 34.0,
-                    6.0 to 43.0,
-                    10.0 to 60.0,
-                    16.0 to 80.0,
-                    25.0 to 106.0,
-                    35.0 to 131.0,
-                    50.0 to 158.0,
-                    70.0 to 200.0,
-                    95.0 to 242.0,
-                    120.0 to 280.0,
-                    150.0 to 320.0,
-                    185.0 to 366.0,
-                    240.0 to 430.0
-                )
-            }
+                Spacer(modifier = Modifier.height(20.dp))
 
-            Material.ALUMINIUM -> when (input.installationMethod) {
-
-                InstallationMethod.A1 -> listOf(
-                    2.5 to 14.0,
-                    4.0 to 19.0,
-                    6.0 to 24.0,
-                    10.0 to 33.0,
-                    16.0 to 43.0,
-                    25.0 to 56.0,
-                    35.0 to 69.0,
-                    50.0 to 84.0,
-                    70.0 to 107.0,
-                    95.0 to 128.0,
-                    120.0 to 147.0,
-                    150.0 to 169.0,
-                    185.0 to 192.0,
-                    240.0 to 227.0
+                Text(
+                    text = "🚧",
+                    style = MaterialTheme.typography.displaySmall
                 )
 
-                else -> listOf(
-                    2.5 to 18.0,
-                    4.0 to 24.0,
-                    6.0 to 30.0,
-                    10.0 to 41.0,
-                    16.0 to 54.0,
-                    25.0 to 70.0,
-                    35.0 to 86.0,
-                    50.0 to 103.0,
-                    70.0 to 132.0,
-                    95.0 to 158.0,
-                    120.0 to 182.0,
-                    150.0 to 209.0,
-                    185.0 to 237.0,
-                    240.0 to 280.0
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = "Cette fonctionnalité sera disponible prochainement.",
+                    textAlign = TextAlign.Center
                 )
             }
         }
-
-    for (section in sections) {
-
-        val referenceCurrent =
-            baseCurrent.firstOrNull {
-                it.first == section
-            }?.second ?: continue
-
-        val admissibleCurrent =
-            referenceCurrent * correctionFactor
-
-        if (input.current > admissibleCurrent) {
-            continue
-        }
-
-        val resistance =
-            rho * input.length / section
-
-        val voltageDrop =
-            if (input.phase == Phase.THREE_PHASE) {
-
-                sqrt(3.0) *
-                        input.current *
-                        resistance *
-                        input.cosPhi
-
-            } else {
-
-                2.0 *
-                        input.current *
-                        resistance *
-                        input.cosPhi
-            }
-
-        val nominalVoltage =
-            if (input.phase == Phase.THREE_PHASE) {
-                400.0
-            } else {
-                230.0
-            }
-
-        val voltageDropPercent =
-            voltageDrop /
-                    nominalVoltage *
-                    100.0
-
-        if (voltageDropPercent <= input.maxVoltageDropPercent) {
-
-            val warning =
-                if (
-                    input.groupedCircuits > 1 ||
-                    input.ambientTemperature != 30.0
-                ) {
-
-                    "⚠️ Facteurs de correction appliqués. Vérification normative finale recommandée."
-
-                } else {
-
-                    null
-                }
-
-            return CableSizingResult(
-                section = section,
-                voltageDropVolts = voltageDrop,
-                voltageDropPercent = voltageDropPercent,
-                resistance = resistance,
-                correctionFactor = correctionFactor,
-                warning = warning
-            )
-        }
-    }
-
-    return null
-}
-
-// ============================================================
-// HELPERS
-// ============================================================
-
-fun formatNumber(value: Double): String {
-    return String.format("%.2f", value)
-}
-
-fun installationLabel(
-    method: InstallationMethod
-): String {
-    return method.name
-}
-
-fun installationFromLabel(
-    label: String
-): InstallationMethod {
-
-    return when (label) {
-
-        "A1" -> InstallationMethod.A1
-        "A2" -> InstallationMethod.A2
-        "B1" -> InstallationMethod.B1
-        "B2" -> InstallationMethod.B2
-        "C" -> InstallationMethod.C
-        "D1" -> InstallationMethod.D1
-        "E" -> InstallationMethod.E
-        "F" -> InstallationMethod.F
-
-        else -> InstallationMethod.C
-    }
-}
-
-fun insulationLabel(
-    insulation: Insulation
-): String {
-
-    return when (insulation) {
-
-        Insulation.PVC -> "PVC"
-        Insulation.XLPE -> "XLPE"
     }
 }
