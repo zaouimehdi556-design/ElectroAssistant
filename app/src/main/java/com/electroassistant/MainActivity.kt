@@ -17,8 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import kotlin.math.sqrt
 import java.util.Locale
+import kotlin.math.sqrt
 
 class MainActivity : ComponentActivity() {
 
@@ -31,14 +31,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/* =========================================================
-   APPLICATION
-   ========================================================= */
-
 @Composable
 fun ElectroAssistantApp() {
-
-    var page by remember { mutableStateOf("home") }
 
     MaterialTheme(
         colorScheme = lightColorScheme(
@@ -52,6 +46,8 @@ fun ElectroAssistantApp() {
             modifier = Modifier.fillMaxSize(),
             color = Color(0xFFF5F7FA)
         ) {
+
+            var page by remember { mutableStateOf("home") }
 
             when (page) {
 
@@ -76,6 +72,13 @@ fun ElectroAssistantApp() {
 
                 "plan" -> PlanScreen(
                     onBack = { page = "home" }
+                )
+
+                else -> HomeScreen(
+                    onCable = { page = "cable" },
+                    onDrop = { page = "drop" },
+                    onBreaker = { page = "breaker" },
+                    onPlan = { page = "plan" }
                 )
             }
         }
@@ -104,12 +107,7 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFF1565C0))
-                .padding(
-                    start = 24.dp,
-                    end = 24.dp,
-                    top = 35.dp,
-                    bottom = 30.dp
-                )
+                .padding(24.dp)
         ) {
 
             Column {
@@ -194,7 +192,7 @@ fun HomeScreen(
             HomeCard(
                 emoji = "📄",
                 title = "Plan électrique",
-                description = "Consulter les modes de pose.",
+                description = "Préparer l'analyse d'un plan.",
                 onClick = onPlan
             )
 
@@ -221,18 +219,18 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "ElectroAssistant est un outil d'aide au "
-                                + "pré-dimensionnement des installations "
-                                + "électriques du bâtiment.",
+                        text = "ElectroAssistant est un outil d'aide au " +
+                                "pré-dimensionnement des installations " +
+                                "électriques du bâtiment.",
                         color = Color.Gray
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
-                        text = "⚠️ Les résultats sont indicatifs et doivent "
-                                + "être vérifiés selon les normes applicables "
-                                + "et les conditions réelles de l'installation.",
+                        text = "⚠️ Les résultats sont indicatifs et doivent " +
+                                "être vérifiés selon les normes applicables " +
+                                "et les conditions réelles de l'installation.",
                         color = Color(0xFF795548),
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -242,7 +240,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(25.dp))
 
             Text(
-                text = "ElectroAssistant • Version 3.0",
+                text = "ElectroAssistant • Version 2.1",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 color = Color.Gray
@@ -268,7 +266,9 @@ fun HomeCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable {
+                onClick()
+            },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -279,9 +279,7 @@ fun HomeCard(
     ) {
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
@@ -405,7 +403,9 @@ fun CableScreen(
 
                 RadioButton(
                     selected = !threePhase,
-                    onClick = { threePhase = false }
+                    onClick = {
+                        threePhase = false
+                    }
                 )
 
                 Text("Monophasé")
@@ -414,7 +414,9 @@ fun CableScreen(
 
                 RadioButton(
                     selected = threePhase,
-                    onClick = { threePhase = true }
+                    onClick = {
+                        threePhase = true
+                    }
                 )
 
                 Text("Triphasé")
@@ -433,7 +435,9 @@ fun CableScreen(
 
                 RadioButton(
                     selected = copper,
-                    onClick = { copper = true }
+                    onClick = {
+                        copper = true
+                    }
                 )
 
                 Text("Cuivre")
@@ -442,7 +446,9 @@ fun CableScreen(
 
                 RadioButton(
                     selected = !copper,
-                    onClick = { copper = false }
+                    onClick = {
+                        copper = false
+                    }
                 )
 
                 Text("Aluminium")
@@ -501,87 +507,84 @@ fun CableScreen(
         Button(
             onClick = {
 
-                try {
+                val current = currentText.toDoubleOrNull()
+                val length = lengthText.toDoubleOrNull()
+                val voltage = voltageText.toDoubleOrNull()
+                val maxDrop = maxDropText.toDoubleOrNull()
 
-                    val current = currentText.toDouble()
-                    val length = lengthText.toDouble()
-                    val voltage = voltageText.toDouble()
-                    val maxDrop = maxDropText.toDouble()
+                if (
+                    current == null ||
+                    length == null ||
+                    voltage == null ||
+                    maxDrop == null
+                ) {
 
-                    if (
-                        current <= 0 ||
-                        length <= 0 ||
-                        voltage <= 0 ||
-                        maxDrop <= 0
-                    ) {
+                    error = "Veuillez entrer des valeurs numériques valides."
+                    result = ""
 
-                        error =
-                            "Les valeurs doivent être supérieures à zéro."
+                } else if (
+                    current <= 0 ||
+                    length <= 0 ||
+                    voltage <= 0 ||
+                    maxDrop <= 0
+                ) {
 
-                        result = ""
+                    error = "Les valeurs doivent être supérieures à zéro."
+                    result = ""
 
-                    } else {
+                } else {
 
-                        val rho =
-                            if (copper) 0.0175 else 0.0282
+                    val rho =
+                        if (copper) 0.0175 else 0.0282
 
-                        val factor =
-                            if (threePhase) sqrt(3.0) else 2.0
+                    val factor =
+                        if (threePhase) sqrt(3.0) else 2.0
 
-                        var selectedSection: Double? = null
-                        var selectedDrop = 0.0
-                        var selectedPercent = 0.0
+                    var selectedSection: Double? = null
+                    var selectedDrop = 0.0
+                    var selectedPercent = 0.0
 
-                        for (section in sections) {
+                    for (section in sections) {
 
-                            val resistance =
-                                rho * length / section
+                        val resistance =
+                            rho * length / section
 
-                            val drop =
-                                factor * current * resistance
+                        val drop =
+                            factor * current * resistance
 
-                            val percent =
-                                drop / voltage * 100.0
+                        val percent =
+                            drop / voltage * 100.0
 
-                            if (percent <= maxDrop) {
+                        if (percent <= maxDrop) {
 
-                                selectedSection = section
-                                selectedDrop = drop
-                                selectedPercent = percent
+                            selectedSection = section
+                            selectedDrop = drop
+                            selectedPercent = percent
 
-                                break
-                            }
-                        }
-
-                        if (selectedSection == null) {
-
-                            result = ""
-
-                            error =
-                                "Aucune section disponible ne respecte la chute maximale."
-
-                        } else {
-
-                            error = ""
-
-                            result =
-                                "Section recommandée : " +
-                                        "${formatNumber(selectedSection)} mm²\n\n" +
-                                        "Chute de tension : " +
-                                        "${formatNumber(selectedDrop)} V\n" +
-                                        "Pourcentage : " +
-                                        "${formatNumber(selectedPercent)} %\n\n" +
-                                        "Matériau : " +
-                                        if (copper) "Cuivre" else "Aluminium"
+                            break
                         }
                     }
 
-                } catch (e: Exception) {
+                    if (selectedSection == null) {
 
-                    result = ""
+                        result = ""
+                        error =
+                            "Aucune section disponible ne respecte la chute maximale."
 
-                    error =
-                        "Veuillez vérifier les valeurs saisies."
+                    } else {
+
+                        error = ""
+
+                        result =
+                            "Section recommandée : " +
+                                    "${formatNumber(selectedSection)} mm²\n\n" +
+                                    "Chute de tension : " +
+                                    "${formatNumber(selectedDrop)} V\n" +
+                                    "Pourcentage : " +
+                                    "${formatNumber(selectedPercent)} %\n\n" +
+                                    "Matériau : " +
+                                    if (copper) "Cuivre" else "Aluminium"
+                    }
                 }
             },
             modifier = Modifier
@@ -666,7 +669,9 @@ fun VoltageDropScreen(
 
                 RadioButton(
                     selected = !threePhase,
-                    onClick = { threePhase = false }
+                    onClick = {
+                        threePhase = false
+                    }
                 )
 
                 Text("Monophasé")
@@ -675,7 +680,9 @@ fun VoltageDropScreen(
 
                 RadioButton(
                     selected = threePhase,
-                    onClick = { threePhase = true }
+                    onClick = {
+                        threePhase = true
+                    }
                 )
 
                 Text("Triphasé")
@@ -687,7 +694,9 @@ fun VoltageDropScreen(
 
                 RadioButton(
                     selected = copper,
-                    onClick = { copper = true }
+                    onClick = {
+                        copper = true
+                    }
                 )
 
                 Text("Cuivre")
@@ -696,7 +705,9 @@ fun VoltageDropScreen(
 
                 RadioButton(
                     selected = !copper,
-                    onClick = { copper = false }
+                    onClick = {
+                        copper = false
+                    }
                 )
 
                 Text("Aluminium")
@@ -755,280 +766,58 @@ fun VoltageDropScreen(
         Button(
             onClick = {
 
-                try {
+                val current = currentText.toDoubleOrNull()
+                val length = lengthText.toDoubleOrNull()
+                val section = sectionText.toDoubleOrNull()
+                val voltage = voltageText.toDoubleOrNull()
 
-                    val current = currentText.toDouble()
-                    val length = lengthText.toDouble()
-                    val section = sectionText.toDouble()
-                    val voltage = voltageText.toDouble()
+                if (
+                    current == null ||
+                    length == null ||
+                    section == null ||
+                    voltage == null
+                ) {
 
-                    if (
-                        current <= 0 ||
-                        length <= 0 ||
-                        section <= 0 ||
-                        voltage <= 0
-                    ) {
-
-                        error =
-                            "Toutes les valeurs doivent être positives."
-
-                        result = ""
-
-                    } else {
-
-                        val rho =
-                            if (copper) 0.0175 else 0.0282
-
-                        val resistance =
-                            rho * length / section
-
-                        val factor =
-                            if (threePhase) sqrt(3.0) else 2.0
-
-                        val drop =
-                            factor * current * resistance
-
-                        val percent =
-                            drop / voltage * 100.0
-
-                        error = ""
-
-                        result =
-                            "ΔU = ${formatNumber(drop)} V\n\n" +
-                                    "Chute = ${formatNumber(percent)} %\n\n" +
-                                    "Résistance de ligne = " +
-                                    "${formatNumber(resistance)} Ω"
-                    }
-
-                } catch (e: Exception) {
-
+                    error = "Veuillez entrer des valeurs numériques valides."
                     result = ""
 
-                    error =
-                        "Veuillez vérifier les valeurs saisies."
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(55.dp),
-            shape = RoundedCornerShape(15.dp)
-        ) {
+                } else if (
+                    current <= 0 ||
+                    length <= 0 ||
+                    section <= 0 ||
+                    voltage <= 0
+                ) {
 
-            Text(
-                text = "CALCULER",
-                fontWeight = FontWeight.Bold
-            )
-        }
+                    error = "Toutes les valeurs doivent être positives."
+                    result = ""
 
-        if (error.isNotEmpty()) {
+                } else {
 
-            Spacer(modifier = Modifier.height(12.dp))
+                    val rho =
+                        if (copper) 0.0175 else 0.0282
 
-            ErrorBox(error)
-        }
+                    val resistance =
+                        rho * length / section
 
-        if (result.isNotEmpty()) {
+                    val factor =
+                        if (threePhase) sqrt(3.0) else 2.0
 
-            Spacer(modifier = Modifier.height(18.dp))
+                    val drop =
+                        factor * current * resistance
 
-            ResultBox(result)
-        }
+                    val percent =
+                        drop / voltage * 100.0
 
-        Spacer(modifier = Modifier.height(30.dp))
-    }
-}
-
-/* =========================================================
-   DISJONCTEUR
-   ========================================================= */
-
-@Composable
-fun BreakerScreen(
-    onBack: () -> Unit
-) {
-
-    var currentText by remember { mutableStateOf("") }
-    var result by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf("") }
-
-    val breakers = listOf(
-        2, 4, 6, 10, 16, 20, 25, 32,
-        40, 50, 63, 80, 100, 125, 160
-    )
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp)
-    ) {
-
-        TextButton(onClick = onBack) {
-            Text("← Retour")
-        }
-
-        Text(
-            text = "🛡️ Calibre disjoncteur",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-
-        Text(
-            text = "Estimation simple du calibre supérieur au courant.",
-            color = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        SectionBox("⚡ Courant") {
-
-            NumberField(
-                value = currentText,
-                label = "Courant calculé (A)",
-                onValueChange = {
-                    currentText = it
                     error = ""
-                }
-            )
-        }
 
-        Spacer(modifier = Modifier.height(18.dp))
-
-        Button(
-            onClick = {
-
-                try {
-
-                    val current =
-                        currentText.toDouble()
-
-                    if (current <= 0) {
-
-                        error =
-                            "Le courant doit être supérieur à zéro."
-
-                        result = ""
-
-                    } else {
-
-                        val selected =
-                            breakers.firstOrNull {
-                                it >= current
-                            }
-
-                        if (selected == null) {
-
-                            error =
-                                "Courant trop élevé pour la liste disponible."
-
-                            result = ""
-
-                        } else {
-
-                            error = ""
-
-                            result =
-                                "Calibre indicatif : ${selected} A\n\n" +
-                                        "Courant saisi : " +
-                                        "${formatNumber(current)} A"
-                        }
-                    }
-
-                } catch (e: Exception) {
-
-                    error =
-                        "Veuillez entrer un courant valide."
-
-                    result = ""
+                    result =
+                        "ΔU = ${formatNumber(drop)} V\n\n" +
+                                "Chute = ${formatNumber(percent)} %\n\n" +
+                                "Résistance de ligne = " +
+                                "${formatNumber(resistance)} Ω"
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(55.dp),
-            shape = RoundedCornerShape(15.dp)
-        ) {
-
-            Text(
-                text = "CALCULER LE CALIBRE",
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        if (error.isNotEmpty()) {
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            ErrorBox(error)
-        }
-
-        if (result.isNotEmpty()) {
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            ResultBox(result)
-        }
-
-        Spacer(modifier = Modifier.height(25.dp))
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp)
-        ) {
-
-            Text(
-                text =
-                    "⚠️ Attention : le choix réel du disjoncteur "
-                            + "dépend notamment de la section du câble, "
-                            + "du mode de pose, du pouvoir de coupure "
-                            + "et des règles de protection applicables.",
-                modifier = Modifier.padding(18.dp),
-                color = Color(0xFF795548),
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-    }
-}
-
-/* =========================================================
-   PLAN ELECTRIQUE
-   ========================================================= */
-
-@Composable
-fun PlanScreen(
-    onBack: () -> Unit
-) {
-
-    val modes = listOf(
-        "A1" to "Conducteurs isolés dans conduit ou goulotte, avec conditions de pose adaptées.",
-        "A2" to "Câbles multiconducteurs dans conduit ou goulotte.",
-        "B1" to "Conducteurs ou câbles dans conduit sur paroi.",
-        "B2" to "Câbles multiconducteurs sur cheminement ou conduit.",
-        "C" to "Câbles fixés directement sur une surface ou sur chemin de câbles.",
-        "D1" to "Câbles enterrés avec conditions de pose correspondantes.",
-        "E" to "Câbles sur chemin de câbles ou supports avec circulation d'air.",
-        "F" to "Câbles disposés avec plusieurs circuits et conditions particulières."
-    )
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp)
-    ) {
-
-        TextButton(onClick = onBack) {
-            Text("← Retour")
-        }
-
-        Text(
-            text = "📄 Plan électrique",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-
-        Text(
-            text = "Modes de pose de référence",
-            color = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.height(
+            shape = RoundedCornerShape
