@@ -3,11 +3,28 @@ package com.electroassistant
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.math.sqrt
@@ -29,22 +46,33 @@ fun ElectroAssistantApp() {
     var page by remember { mutableStateOf("home") }
 
     MaterialTheme {
+
         Surface(
             modifier = Modifier.fillMaxSize()
         ) {
+
             when (page) {
 
-                "home" -> HomeScreen(
-                    onChute = { page = "chute" }
-                )
+                "home" -> {
+                    HomeScreen(
+                        onChute = {
+                            page = "chute"
+                        }
+                    )
+                }
 
-                "chute" -> ChuteTensionScreen(
-                    onBack = { page = "home" }
-                )
+                "chute" -> {
+                    ChuteTensionScreen(
+                        onBack = {
+                            page = "home"
+                        }
+                    )
+                }
             }
         }
     }
 }
+
 
 @Composable
 fun HomeScreen(
@@ -63,13 +91,17 @@ fun HomeScreen(
             style = MaterialTheme.typography.headlineMedium
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
 
         Text(
             text = "Assistant technique – Électricité bâtiment"
         )
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(
+            modifier = Modifier.height(32.dp)
+        )
 
         Button(
             onClick = onChute,
@@ -78,7 +110,9 @@ fun HomeScreen(
             Text("📐 Chute de tension")
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
 
         Button(
             onClick = {},
@@ -87,7 +121,244 @@ fun HomeScreen(
             Text("🔌 Section de câble")
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        Button(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("🛡️ Calibre disjoncteur")
+        }
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        Button(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("📄 Analyser un plan PDF")
+        }
+    }
+}
+
+
+@Composable
+fun ChuteTensionScreen(
+    onBack: () -> Unit
+) {
+
+    var triphase by remember {
+        mutableStateOf(false)
+    }
+
+    var cuivre by remember {
+        mutableStateOf(true)
+    }
+
+    var tension by remember {
+        mutableStateOf("230")
+    }
+
+    var courant by remember {
+        mutableStateOf("")
+    }
+
+    var longueur by remember {
+        mutableStateOf("")
+    }
+
+    var section by remember {
+        mutableStateOf("2.5")
+    }
+
+    var cosPhi by remember {
+        mutableStateOf("0.90")
+    }
+
+    var resultat by remember {
+        mutableStateOf("")
+    }
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(
+                rememberScrollState()
+            )
+            .padding(20.dp)
+    ) {
+
+        Text(
+            text = "📐 Chute de tension",
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        Button(
+            onClick = onBack
+        ) {
+            Text("← Retour")
+        }
+
+        Spacer(
+            modifier = Modifier.height(20.dp)
+        )
+
+
+        // TYPE DE CIRCUIT
+
+        Text(
+            text = "Type de circuit",
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            RadioButton(
+                selected = !triphase,
+                onClick = {
+                    triphase = false
+                    tension = "230"
+                }
+            )
+
+            Text(
+                text = "Monophasé",
+                modifier = Modifier.padding(top = 12.dp)
+            )
+
+            Spacer(
+                modifier = Modifier.width(15.dp)
+            )
+
+            RadioButton(
+                selected = triphase,
+                onClick = {
+                    triphase = true
+                    tension = "400"
+                }
+            )
+
+            Text(
+                text = "Triphasé",
+                modifier = Modifier.padding(top = 12.dp)
+            )
+        }
+
+
+        Spacer(
+            modifier = Modifier.height(10.dp)
+        )
+
+
+        // MATERIAU
+
+        Text(
+            text = "Matériau du conducteur",
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Row {
+
+            RadioButton(
+                selected = cuivre,
+                onClick = {
+                    cuivre = true
+                }
+            )
+
+            Text(
+                text = "Cuivre",
+                modifier = Modifier.padding(top = 12.dp)
+            )
+
+            Spacer(
+                modifier = Modifier.width(15.dp)
+            )
+
+            RadioButton(
+                selected = !cuivre,
+                onClick = {
+                    cuivre = false
+                }
+            )
+
+            Text(
+                text = "Aluminium",
+                modifier = Modifier.padding(top = 12.dp)
+            )
+        }
+
+
+        Spacer(
+            modifier = Modifier.height(10.dp)
+        )
+
+
+        // TENSION
+
+        OutlinedTextField(
+            value = tension,
+            onValueChange = {
+                tension = it
+            },
+            label = {
+                Text("Tension (V)")
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+
+        Spacer(
+            modifier = Modifier.height(10.dp)
+        )
+
+
+        // COURANT
+
+        OutlinedTextField(
+            value = courant,
+            onValueChange = {
+                courant = it
+            },
+            label = {
+                Text("Courant I (A)")
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+
+        Spacer(
+            modifier = Modifier.height(10.dp)
+        )
+
+
+        // LONGUEUR
+
+        OutlinedTextField(
+            value = longueur,
+            onValueChange = {
+                longueur = it
+            },
+            label = {
+                Text("Longueur L (m)")
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+
+        Spacer(
+                   Spacer(modifier = Modifier.height(12.dp))
 
         Button(
             onClick = {},
