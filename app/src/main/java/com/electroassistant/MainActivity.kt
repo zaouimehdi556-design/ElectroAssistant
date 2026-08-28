@@ -3,7 +3,6 @@ package com.electroassistant
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,12 +14,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlin.math.sqrt
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
 
@@ -33,8 +31,14 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/* =========================================================
+   APPLICATION
+   ========================================================= */
+
 @Composable
 fun ElectroAssistantApp() {
+
+    var page by remember { mutableStateOf("home") }
 
     MaterialTheme(
         colorScheme = lightColorScheme(
@@ -48,8 +52,6 @@ fun ElectroAssistantApp() {
             modifier = Modifier.fillMaxSize(),
             color = Color(0xFFF5F7FA)
         ) {
-
-            var page by remember { mutableStateOf("home") }
 
             when (page) {
 
@@ -102,7 +104,12 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFF1565C0))
-                .padding(24.dp)
+                .padding(
+                    start = 24.dp,
+                    end = 24.dp,
+                    top = 35.dp,
+                    bottom = 30.dp
+                )
         ) {
 
             Column {
@@ -187,7 +194,7 @@ fun HomeScreen(
             HomeCard(
                 emoji = "📄",
                 title = "Plan électrique",
-                description = "Préparer l'analyse d'un plan.",
+                description = "Consulter les modes de pose.",
                 onClick = onPlan
             )
 
@@ -235,7 +242,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(25.dp))
 
             Text(
-                text = "ElectroAssistant • Version 2.0",
+                text = "ElectroAssistant • Version 3.0",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 color = Color.Gray
@@ -272,7 +279,9 @@ fun HomeCard(
     ) {
 
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
@@ -499,28 +508,25 @@ fun CableScreen(
                     val voltage = voltageText.toDouble()
                     val maxDrop = maxDropText.toDouble()
 
-                    if (current <= 0 ||
+                    if (
+                        current <= 0 ||
                         length <= 0 ||
                         voltage <= 0 ||
                         maxDrop <= 0
                     ) {
 
-                        error = "Les valeurs doivent être supérieures à zéro."
+                        error =
+                            "Les valeurs doivent être supérieures à zéro."
+
                         result = ""
 
                     } else {
 
-                        val rho = if (copper) {
-                            0.0175
-                        } else {
-                            0.0282
-                        }
+                        val rho =
+                            if (copper) 0.0175 else 0.0282
 
-                        val factor = if (threePhase) {
-                            sqrt(3.0)
-                        } else {
-                            2.0
-                        }
+                        val factor =
+                            if (threePhase) sqrt(3.0) else 2.0
 
                         var selectedSection: Double? = null
                         var selectedDrop = 0.0
@@ -550,6 +556,7 @@ fun CableScreen(
                         if (selectedSection == null) {
 
                             result = ""
+
                             error =
                                 "Aucune section disponible ne respecte la chute maximale."
 
@@ -572,7 +579,9 @@ fun CableScreen(
                 } catch (e: Exception) {
 
                     result = ""
-                    error = "Veuillez vérifier les valeurs saisies."
+
+                    error =
+                        "Veuillez vérifier les valeurs saisies."
                 }
             },
             modifier = Modifier
@@ -753,22 +762,22 @@ fun VoltageDropScreen(
                     val section = sectionText.toDouble()
                     val voltage = voltageText.toDouble()
 
-                    if (current <= 0 ||
+                    if (
+                        current <= 0 ||
                         length <= 0 ||
                         section <= 0 ||
                         voltage <= 0
                     ) {
 
-                        error = "Toutes les valeurs doivent être positives."
+                        error =
+                            "Toutes les valeurs doivent être positives."
+
                         result = ""
 
                     } else {
 
-                        val rho = if (copper) {
-                            0.0175
-                        } else {
-                            0.0282
-                        }
+                        val rho =
+                            if (copper) 0.0175 else 0.0282
 
                         val resistance =
                             rho * length / section
@@ -794,7 +803,9 @@ fun VoltageDropScreen(
                 } catch (e: Exception) {
 
                     result = ""
-                    error = "Veuillez vérifier les valeurs saisies."
+
+                    error =
+                        "Veuillez vérifier les valeurs saisies."
                 }
             },
             modifier = Modifier
@@ -822,6 +833,8 @@ fun VoltageDropScreen(
 
             ResultBox(result)
         }
+
+        Spacer(modifier = Modifier.height(30.dp))
     }
 }
 
@@ -977,13 +990,24 @@ fun BreakerScreen(
 }
 
 /* =========================================================
-   PLAN
+   PLAN ELECTRIQUE
    ========================================================= */
 
 @Composable
 fun PlanScreen(
     onBack: () -> Unit
 ) {
+
+    val modes = listOf(
+        "A1" to "Conducteurs isolés dans conduit ou goulotte, avec conditions de pose adaptées.",
+        "A2" to "Câbles multiconducteurs dans conduit ou goulotte.",
+        "B1" to "Conducteurs ou câbles dans conduit sur paroi.",
+        "B2" to "Câbles multiconducteurs sur cheminement ou conduit.",
+        "C" to "Câbles fixés directement sur une surface ou sur chemin de câbles.",
+        "D1" to "Câbles enterrés avec conditions de pose correspondantes.",
+        "E" to "Câbles sur chemin de câbles ou supports avec circulation d'air.",
+        "F" to "Câbles disposés avec plusieurs circuits et conditions particulières."
+    )
 
     Column(
         modifier = Modifier
@@ -1007,236 +1031,4 @@ fun PlanScreen(
             color = Color.Gray
         )
 
-        Spacer(modifier = Modifier.height(18.dp))
-
-        PlanImage(
-            image = R.drawable.mode_a1,
-            title = "Mode A1"
-        )
-
-        PlanImage(
-            image = R.drawable.mode_a2,
-            title = "Mode A2"
-        )
-
-        PlanImage(
-            image = R.drawable.mode_b1,
-            title = "Mode B1"
-        )
-
-        PlanImage(
-            image = R.drawable.mode_b2,
-            title = "Mode B2"
-        )
-
-        PlanImage(
-            image = R.drawable.mode_c,
-            title = "Mode C"
-        )
-
-        PlanImage(
-            image = R.drawable.mode_d1,
-            title = "Mode D1"
-        )
-
-        PlanImage(
-            image = R.drawable.mode_e,
-            title = "Mode E"
-        )
-
-        PlanImage(
-            image = R.drawable.mode_f,
-            title = "Mode F"
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp)
-        ) {
-
-            Text(
-                text =
-                    "💡 هذه الصور موجودة داخل التطبيق كمرجع "
-                            + "لاختيار طريقة التركيب المناسبة.",
-                modifier = Modifier.padding(18.dp),
-                color = Color.Gray
-            )
-        }
-    }
-}
-
-/* =========================================================
-   IMAGE
-   ========================================================= */
-
-@Composable
-fun PlanImage(
-    image: Int,
-    title: String
-) {
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 14.dp),
-        shape = RoundedCornerShape(18.dp)
-    ) {
-
-        Column {
-
-            Text(
-                text = title,
-                modifier = Modifier.padding(15.dp),
-                fontWeight = FontWeight.Bold
-            )
-
-            Image(
-                painter = painterResource(id = image),
-                contentDescription = title,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp),
-                contentScale = ContentScale.Fit
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-        }
-    }
-}
-
-/* =========================================================
-   NUMBER FIELD
-   ========================================================= */
-
-@Composable
-fun NumberField(
-    value: String,
-    label: String,
-    onValueChange: (String) -> Unit
-) {
-
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth(),
-        label = {
-            Text(label)
-        },
-        singleLine = true
-    )
-}
-
-/* =========================================================
-   SECTION BOX
-   ========================================================= */
-
-@Composable
-fun SectionBox(
-    title: String,
-    content: @Composable ColumnScope.() -> Unit
-) {
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        )
-    ) {
-
-        Column(
-            modifier = Modifier.padding(18.dp)
-        ) {
-
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            content()
-        }
-    }
-}
-
-/* =========================================================
-   RESULT BOX
-   ========================================================= */
-
-@Composable
-fun ResultBox(
-    text: String
-) {
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFE8F5E9)
-        )
-    ) {
-
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-
-            Text(
-                text = "✅ Résultat",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF2E7D32)
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = text,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-/* =========================================================
-   ERROR BOX
-   ========================================================= */
-
-@Composable
-fun ErrorBox(
-    text: String
-) {
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(15.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFFEBEE)
-        )
-    ) {
-
-        Text(
-            text = "⚠️ $text",
-            modifier = Modifier.padding(16.dp),
-            color = Color(0xFFC62828)
-        )
-    }
-}
-
-/* =========================================================
-   FORMAT
-   ========================================================= */
-
-fun formatNumber(
-    value: Double
-): String {
-
-    return String.format(
-        java.util.Locale.US,
-        "%.2f",
-        value
-    )
-}
+        Spacer(modifier = Modifier.height(
