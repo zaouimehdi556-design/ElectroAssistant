@@ -3,29 +3,18 @@ package com.electroassistant
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlin.math.sqrt
 
@@ -48,7 +37,8 @@ fun ElectroAssistantApp() {
     MaterialTheme {
 
         Surface(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            color = Color(0xFFF5F7FA)
         ) {
 
             when (page) {
@@ -56,18 +46,29 @@ fun ElectroAssistantApp() {
                 "home" -> HomeScreen(
                     onChute = { page = "chute" },
                     onSection = { page = "section" },
-                    onDisjoncteur = { page = "disjoncteur" }
+                    onDisjoncteur = { page = "disjoncteur" },
+                    onPdf = { page = "pdf" }
                 )
 
                 "chute" -> ChuteTensionScreen(
                     onBack = { page = "home" }
                 )
 
-                "section" -> SectionCableScreen(
+                "section" -> ComingSoonScreen(
+                    title = "🔌 Section de câble",
+                    description = "Calcul automatique de la section du câble.",
                     onBack = { page = "home" }
                 )
 
-                "disjoncteur" -> DisjoncteurScreen(
+                "disjoncteur" -> ComingSoonScreen(
+                    title = "🛡️ Calibre disjoncteur",
+                    description = "Détermination du calibre adapté du disjoncteur.",
+                    onBack = { page = "home" }
+                )
+
+                "pdf" -> ComingSoonScreen(
+                    title = "📄 Analyse de plan PDF",
+                    description = "Analyse intelligente des plans électriques.",
                     onBack = { page = "home" }
                 )
             }
@@ -75,78 +76,295 @@ fun ElectroAssistantApp() {
     }
 }
 
-
-/* =========================================================
-   HOME
-   ========================================================= */
-
 @Composable
 fun HomeScreen(
     onChute: () -> Unit,
     onSection: () -> Unit,
-    onDisjoncteur: () -> Unit
+    onDisjoncteur: () -> Unit,
+    onPdf: () -> Unit
 ) {
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center
+            .verticalScroll(rememberScrollState())
     ) {
 
-        Text(
-            text = "⚡ ElectroAssistant",
-            style = MaterialTheme.typography.headlineMedium
-        )
+        /* HEADER */
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Assistant technique – Électricité bâtiment"
-        )
-
-        Spacer(modifier = Modifier.height(30.dp))
-
-        Button(
-            onClick = onChute,
-            modifier = Modifier.fillMaxWidth()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color(0xFF0D47A1),
+                            Color(0xFF1976D2)
+                        )
+                    )
+                )
+                .padding(
+                    start = 24.dp,
+                    end = 24.dp,
+                    top = 35.dp,
+                    bottom = 30.dp
+                )
         ) {
-            Text("📐 Chute de tension")
+
+            Column {
+
+                Text(
+                    text = "⚡",
+                    style = MaterialTheme.typography.displaySmall
+                )
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                Text(
+                    text = "ElectroAssistant",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                Text(
+                    text = "Assistant technique • Électricité bâtiment",
+                    color = Color.White.copy(alpha = 0.85f)
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        /* CONTENU */
 
-        Button(
-            onClick = onSection,
-            modifier = Modifier.fillMaxWidth()
+        Column(
+            modifier = Modifier.padding(20.dp)
         ) {
-            Text("🔌 Section de câble")
-        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Outils électriques",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
 
-        Button(
-            onClick = onDisjoncteur,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("🛡️ Calibre disjoncteur")
-        }
+            Spacer(modifier = Modifier.height(5.dp))
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Sélectionnez l'outil dont vous avez besoin.",
+                color = Color.Gray
+            )
 
-        Button(
-            onClick = {},
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("📄 Analyser un plan PDF")
+            Spacer(modifier = Modifier.height(18.dp))
+
+            ToolCard(
+                emoji = "📐",
+                title = "Chute de tension",
+                description = "Calculer la chute de tension d'un circuit.",
+                onClick = onChute
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            ToolCard(
+                emoji = "🔌",
+                title = "Section de câble",
+                description = "Déterminer la section adaptée du conducteur.",
+                onClick = onSection
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            ToolCard(
+                emoji = "🛡️",
+                title = "Calibre disjoncteur",
+                description = "Choisir le calibre du disjoncteur.",
+                onClick = onDisjoncteur
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            ToolCard(
+                emoji = "📄",
+                title = "Analyser un plan PDF",
+                description = "Analyser un plan électrique automatiquement.",
+                onClick = onPdf
+            )
+
+            Spacer(modifier = Modifier.height(25.dp))
+
+            /* INFO CARD */
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                ),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 3.dp
+                )
+            ) {
+
+                Column(
+                    modifier = Modifier.padding(18.dp)
+                ) {
+
+                    Text(
+                        text = "💡 ElectroAssistant",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "Un assistant destiné aux électriciens, techniciens et étudiants en électricité bâtiment.",
+                        color = Color.DarkGray
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = "Version 1.0",
+                modifier = Modifier.fillMaxWidth(),
+                color = Color.Gray,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
         }
     }
 }
 
+@Composable
+fun ToolCard(
+    emoji: String,
+    title: String,
+    description: String,
+    onClick: () -> Unit
+) {
 
-/* =========================================================
-   CHUTE DE TENSION
-   ========================================================= */
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 3.dp
+        )
+    ) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Box(
+                modifier = Modifier
+                    .size(55.dp)
+                    .background(
+                        color = Color(0xFFE3F2FD),
+                        shape = RoundedCornerShape(15.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+
+                Text(
+                    text = emoji,
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+
+            Spacer(modifier = Modifier.width(15.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = description,
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Button(
+                onClick = onClick,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Ouvrir")
+            }
+        }
+    }
+}
+
+@Composable
+fun ComingSoonScreen(
+    title: String,
+    description: String,
+    onBack: () -> Unit
+) {
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp)
+    ) {
+
+        TextButton(
+            onClick = onBack
+        ) {
+            Text("← Retour")
+        }
+
+        Spacer(modifier = Modifier.height(25.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp)
+        ) {
+
+            Column(
+                modifier = Modifier.padding(25.dp)
+            ) {
+
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Text(
+                    text = description,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(25.dp))
+
+                Text(
+                    text = "🚧 Module en préparation",
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun ChuteTensionScreen(
@@ -159,7 +377,7 @@ fun ChuteTensionScreen(
     var tension by remember { mutableStateOf("230") }
     var courant by remember { mutableStateOf("") }
     var longueur by remember { mutableStateOf("") }
-    var section by remember { mutableStateOf("4") }
+    var section by remember { mutableStateOf("2.5") }
     var cosPhi by remember { mutableStateOf("0.90") }
 
     var resultat by remember { mutableStateOf("") }
@@ -171,142 +389,133 @@ fun ChuteTensionScreen(
             .padding(20.dp)
     ) {
 
-        Text(
-            text = "📐 Chute de tension",
-            style = MaterialTheme.typography.headlineSmall
-        )
-
-        Spacer(modifier = Modifier.height(15.dp))
-
-        Button(
+        TextButton(
             onClick = onBack
         ) {
             Text("← Retour")
         }
 
-        Spacer(modifier = Modifier.height(15.dp))
-
-        Text("Type de circuit")
-
-        Row {
-
-            RadioButton(
-                selected = !triphase,
-                onClick = {
-                    triphase = false
-                    tension = "230"
-                }
-            )
-
-            Text(
-                text = "Monophasé",
-                modifier = Modifier.padding(top = 12.dp)
-            )
-
-            Spacer(modifier = Modifier.width(15.dp))
-
-            RadioButton(
-                selected = triphase,
-                onClick = {
-                    triphase = true
-                    tension = "400"
-                }
-            )
-
-            Text(
-                text = "Triphasé",
-                modifier = Modifier.padding(top = 12.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        Text("Matériau du conducteur")
-
-        Row {
-
-            RadioButton(
-                selected = cuivre,
-                onClick = {
-                    cuivre = true
-                }
-            )
-
-            Text(
-                text = "Cuivre",
-                modifier = Modifier.padding(top = 12.dp)
-            )
-
-            Spacer(modifier = Modifier.width(15.dp))
-
-            RadioButton(
-                selected = !cuivre,
-                onClick = {
-                    cuivre = false
-                }
-            )
-
-            Text(
-                text = "Aluminium",
-                modifier = Modifier.padding(top = 12.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        OutlinedTextField(
-            value = tension,
-            onValueChange = { tension = it },
-            label = { Text("Tension (V)") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        OutlinedTextField(
-            value = courant,
-            onValueChange = { courant = it },
-            label = { Text("Courant I (A)") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        OutlinedTextField(
-            value = longueur,
-            onValueChange = { longueur = it },
-            label = { Text("Longueur L (m)") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        OutlinedTextField(
-            value = section,
-            onValueChange = { section = it },
-            label = { Text("Section (mm²)") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        OutlinedTextField(
-            value = cosPhi,
-            onValueChange = { cosPhi = it },
-            label = { Text("cos φ") },
-            modifier = Modifier.fillMaxWidth()
+        Text(
+            text = "📐 Chute de tension",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold
         )
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(18.dp)
+        ) {
+
+            Column(
+                modifier = Modifier.padding(18.dp)
+            ) {
+
+                Text(
+                    "Type de circuit",
+                    fontWeight = FontWeight.Bold
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    RadioButton(
+                        selected = !triphase,
+                        onClick = {
+                            triphase = false
+                            tension = "230"
+                        }
+                    )
+
+                    Text("Monophasé")
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    RadioButton(
+                        selected = triphase,
+                        onClick = {
+                            triphase = true
+                            tension = "400"
+                        }
+                    )
+
+                    Text("Triphasé")
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    "Matériau",
+                    fontWeight = FontWeight.Bold
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    RadioButton(
+                        selected = cuivre,
+                        onClick = { cuivre = true }
+                    )
+
+                    Text("Cuivre")
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    RadioButton(
+                        selected = !cuivre,
+                        onClick = { cuivre = false }
+                    )
+
+                    Text("Aluminium")
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(15.dp))
+
+        InputField(
+            value = tension,
+            onValueChange = { tension = it },
+            label = "Tension (V)"
+        )
+
+        InputField(
+            value = courant,
+            onValueChange = { courant = it },
+            label = "Courant I (A)"
+        )
+
+        InputField(
+            value = longueur,
+            onValueChange = { longueur = it },
+            label = "Longueur L (m)"
+        )
+
+        InputField(
+            value = section,
+            onValueChange = { section = it },
+            label = "Section (mm²)"
+        )
+
+        InputField(
+            value = cosPhi,
+            onValueChange = { cosPhi = it },
+            label = "cos φ"
+        )
+
+        Spacer(modifier = Modifier.height(15.dp))
+
         Button(
             onClick = {
 
-                val u = tension.replace(",", ".").toDoubleOrNull()
-                val i = courant.replace(",", ".").toDoubleOrNull()
-                val l = longueur.replace(",", ".").toDoubleOrNull()
-                val s = section.replace(",", ".").toDoubleOrNull()
-                val cos = cosPhi.replace(",", ".").toDoubleOrNull()
+                val u = tension.toDoubleOrNull()
+                val i = courant.toDoubleOrNull()
+                val l = longueur.toDoubleOrNull()
+                val s = section.toDoubleOrNull()
+                val cos = cosPhi.toDoubleOrNull()
 
                 if (
                     u != null &&
@@ -322,26 +531,35 @@ fun ChuteTensionScreen(
                     cos <= 1
                 ) {
 
-                    val rho = if (cuivre) {
-                        0.0175
-                    } else {
-                        0.0282
-                    }
+                    val rho =
+                        if (cuivre) 0.0175 else 0.0282
 
-                    val resistance = rho * l / s
+                    val sinPhi =
+                        sqrt(1.0 - cos * cos)
 
-                    val deltaU = if (triphase) {
-                        sqrt(3.0) * i * resistance * cos
-                    } else {
-                        2.0 * i * resistance * cos
-                    }
+                    val resistance =
+                        rho * l / s
 
-                    val pourcentage = deltaU / u * 100.0
+                    val deltaU =
+                        if (triphase) {
+                            sqrt(3.0) *
+                                    i *
+                                    resistance *
+                                    cos
+                        } else {
+                            2.0 *
+                                    i *
+                                    resistance *
+                                    cos
+                        }
+
+                    val percent =
+                        deltaU / u * 100.0
 
                     resultat =
-                        "Chute de tension : %.2f V\nPourcentage : %.2f %%".format(
+                        "ΔU = %.2f V\nChute = %.2f %%".format(
                             deltaU,
-                            pourcentage
+                            percent
                         )
 
                 } else {
@@ -349,262 +567,57 @@ fun ChuteTensionScreen(
                     resultat = "⚠️ Vérifiez les valeurs saisies."
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp)
         ) {
-            Text("Calculer")
-        }
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = "⚡ Calculer"
+            )
+        }
 
         if (resultat.isNotEmpty()) {
 
-            Text(
-                text = resultat,
-                style = MaterialTheme.typography.titleMedium
-            )
+            Spacer(modifier = Modifier.height(15.dp))
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFE8F5E9)
+                ),
+                shape = RoundedCornerShape(18.dp)
+            ) {
+
+                Text(
+                    text = resultat,
+                    modifier = Modifier.padding(20.dp),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
+
+        Spacer(modifier = Modifier.height(30.dp))
     }
 }
 
-
-/* =========================================================
-   SECTION DE CÂBLE
-   ========================================================= */
-
 @Composable
-fun SectionCableScreen(
-    onBack: () -> Unit
+fun InputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String
 ) {
 
-    var cuivre by remember { mutableStateOf(true) }
-    var courant by remember { mutableStateOf("") }
-    var longueur by remember { mutableStateOf("") }
-    var resultat by remember { mutableStateOf("") }
-
-    Column(
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = {
+            Text(label)
+        },
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp)
-    ) {
-
-        Text(
-            text = "🔌 Section de câble",
-            style = MaterialTheme.typography.headlineSmall
-        )
-
-        Spacer(modifier = Modifier.height(15.dp))
-
-        Button(
-            onClick = onBack
-        ) {
-            Text("← Retour")
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Text("Matériau")
-
-        Row {
-
-            RadioButton(
-                selected = cuivre,
-                onClick = { cuivre = true }
-            )
-
-            Text(
-                "Cuivre",
-                modifier = Modifier.padding(top = 12.dp)
-            )
-
-            Spacer(modifier = Modifier.width(15.dp))
-
-            RadioButton(
-                selected = !cuivre,
-                onClick = { cuivre = false }
-            )
-
-            Text(
-                "Aluminium",
-                modifier = Modifier.padding(top = 12.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(15.dp))
-
-        OutlinedTextField(
-            value = courant,
-            onValueChange = { courant = it },
-            label = { Text("Courant (A)") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        OutlinedTextField(
-            value = longueur,
-            onValueChange = { longueur = it },
-            label = { Text("Longueur (m)") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Button(
-            onClick = {
-
-                val i = courant.replace(",", ".").toDoubleOrNull()
-                val l = longueur.replace(",", ".").toDoubleOrNull()
-
-                if (i != null && l != null && i > 0 && l >= 0) {
-
-                    /*
-                     * Estimation simple.
-                     * Les sections proposées sont des sections
-                     * normalisées courantes.
-                     */
-
-                    val sections = listOf(
-                        1.5,
-                        2.5,
-                        4.0,
-                        6.0,
-                        10.0,
-                        16.0,
-                        25.0,
-                        35.0,
-                        50.0,
-                        70.0
-                    )
-
-                    val sectionChoisie = when {
-                        i <= 10 -> 1.5
-                        i <= 16 -> 2.5
-                        i <= 25 -> 4.0
-                        i <= 32 -> 6.0
-                        i <= 40 -> 10.0
-                        i <= 63 -> 16.0
-                        i <= 80 -> 25.0
-                        i <= 100 -> 35.0
-                        i <= 125 -> 50.0
-                        else -> 70.0
-                    }
-
-                    val materiau = if (cuivre) {
-                        "Cuivre"
-                    } else {
-                        "Aluminium"
-                    }
-
-                    resultat =
-                        "Section conseillée : %.1f mm²\nMatériau : %s\n\n⚠️ Vérification finale selon mode de pose, température et norme nécessaire."
-                            .format(sectionChoisie, materiau)
-
-                } else {
-
-                    resultat = "⚠️ Vérifiez les valeurs."
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Calculer la section")
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        if (resultat.isNotEmpty()) {
-
-            Text(
-                text = resultat,
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-    }
-}
-
-
-/* =========================================================
-   DISJONCTEUR
-   ========================================================= */
-
-@Composable
-fun DisjoncteurScreen(
-    onBack: () -> Unit
-) {
-
-    var courant by remember { mutableStateOf("") }
-    var resultat by remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp)
-    ) {
-
-        Text(
-            text = "🛡️ Calibre disjoncteur",
-            style = MaterialTheme.typography.headlineSmall
-        )
-
-        Spacer(modifier = Modifier.height(15.dp))
-
-        Button(
-            onClick = onBack
-        ) {
-            Text("← Retour")
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        OutlinedTextField(
-            value = courant,
-            onValueChange = { courant = it },
-            label = { Text("Courant de charge (A)") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Button(
-            onClick = {
-
-                val i = courant.replace(",", ".").toDoubleOrNull()
-
-                if (i != null && i > 0) {
-
-                    val calibre = when {
-                        i <= 10 -> 10
-                        i <= 16 -> 16
-                        i <= 20 -> 20
-                        i <= 25 -> 25
-                        i <= 32 -> 32
-                        i <= 40 -> 40
-                        i <= 50 -> 50
-                        i <= 63 -> 63
-                        else -> 80
-                    }
-
-                    resultat =
-                        "Calibre proposé : $calibre A"
-
-                } else {
-
-                    resultat = "⚠️ Entrez un courant valide."
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Calculer")
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        if (resultat.isNotEmpty()) {
-
-            Text(
-                text = resultat,
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-    }
+            .fillMaxWidth()
+            .padding(bottom = 10.dp),
+        singleLine = true,
+        shape = RoundedCornerShape(14.dp)
+    )
 }
