@@ -3,23 +3,39 @@ package com.electroassistant
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import java.util.Locale
 import kotlin.math.sqrt
 
 class MainActivity : ComponentActivity() {
@@ -28,7 +44,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            ElectroAssistantApp()
+            MaterialTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    ElectroAssistantApp()
+                }
+            }
         }
     }
 }
@@ -36,661 +59,608 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ElectroAssistantApp() {
 
-    MaterialTheme(
-        colorScheme = lightColorScheme(
-            primary = Color(0xFF1565C0),
-            secondary = Color(0xFF00A6A6),
-            background = Color(0xFFF5F7FA)
-        )
-    ) {
+    var selectedScreen by remember {
+        mutableIntStateOf(0)
+    }
 
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = Color(0xFFF5F7FA)
-        ) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Electro Assistant",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            )
+        },
+        bottomBar = {
+            NavigationBar {
 
-            var page by remember { mutableStateOf("home") }
-
-            when (page) {
-
-                "home" -> HomeScreen(
-                    onCable = { page = "cable" },
-                    onDrop = { page = "drop" },
-                    onBreaker = { page = "breaker" },
-                    onPlan = { page = "plan" }
+                NavigationBarItem(
+                    selected = selectedScreen == 0,
+                    onClick = { selectedScreen = 0 },
+                    icon = { Text("⌂") },
+                    label = { Text("الرئيسية") }
                 )
 
-                "cable" -> CableScreen(
-                    onBack = { page = "home" }
+                NavigationBarItem(
+                    selected = selectedScreen == 1,
+                    onClick = { selectedScreen = 1 },
+                    icon = { Text("⚡") },
+                    label = { Text("القاطع") }
                 )
 
-                "drop" -> VoltageDropScreen(
-                    onBack = { page = "home" }
-                )
-
-                "breaker" -> BreakerScreen(
-                    onBack = { page = "home" }
-                )
-
-                "plan" -> PlanScreen(
-                    onBack = { page = "home" }
+                NavigationBarItem(
+                    selected = selectedScreen == 2,
+                    onClick = { selectedScreen = 2 },
+                    icon = { Text("▣") },
+                    label = { Text("الخطة") }
                 )
             }
+        }
+    ) { padding ->
+
+        when (selectedScreen) {
+
+            0 -> HomeScreen(
+                modifier = Modifier.padding(padding)
+            )
+
+            1 -> BreakerScreen(
+                modifier = Modifier.padding(padding)
+            )
+
+            2 -> PlanScreen(
+                modifier = Modifier.padding(padding)
+            )
         }
     }
 }
 
 /* =========================================================
-   ACCUEIL
+   HOME
    ========================================================= */
 
 @Composable
 fun HomeScreen(
-    onCable: () -> Unit,
-    onDrop: () -> Unit,
-    onBreaker: () -> Unit,
-    onPlan: () -> Unit
+    modifier: Modifier = Modifier
 ) {
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color(0xFF1565C0))
-                .padding(24.dp)
-        ) {
-
-            Column {
-
-                Text(
-                    text = "⚡",
-                    style = MaterialTheme.typography.displayMedium
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "ElectroAssistant",
-                    color = Color.White,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Text(
-                    text = "Assistant technique • Électricité bâtiment",
-                    color = Color.White.copy(alpha = 0.9f)
-                )
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                Text(
-                    text = "Dimensionnez vos installations plus simplement.",
-                    color = Color.White,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-        }
-
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-
-            Text(
-                text = "Outils électriques",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(5.dp))
-
-            Text(
-                text = "Choisissez l'outil dont vous avez besoin.",
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            HomeCard(
-                emoji = "🔌",
-                title = "Section de câble",
-                description = "Calculer une section adaptée.",
-                onClick = onCable
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            HomeCard(
-                emoji = "📐",
-                title = "Chute de tension",
-                description = "Calculer la chute de tension.",
-                onClick = onDrop
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            HomeCard(
-                emoji = "🛡️",
-                title = "Calibre disjoncteur",
-                description = "Estimer le calibre du disjoncteur.",
-                onClick = onBreaker
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            HomeCard(
-                emoji = "📄",
-                title = "Plan électrique",
-                description = "Références des modes de pose.",
-                onClick = onPlan
-            )
-
-            Spacer(modifier = Modifier.height(22.dp))
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White
-                )
-            ) {
-
-                Column(
-                    modifier = Modifier.padding(20.dp)
-                ) {
-
-                    Text(
-                        text = "💡 À propos",
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = "ElectroAssistant est un outil d'aide au "
-                                + "pré-dimensionnement des installations "
-                                + "électriques du bâtiment.",
-                        color = Color.Gray
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Text(
-                        text = "⚠️ Les résultats sont indicatifs et doivent "
-                                + "être vérifiés selon les normes applicables "
-                                + "et les conditions réelles de l'installation.",
-                        color = Color(0xFF795548),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(25.dp))
-
-            Text(
-                text = "ElectroAssistant • Version 2.0",
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-        }
-    }
-}
-
-/* =========================================================
-   HOME CARD
-   ========================================================= */
-
-@Composable
-fun HomeCard(
-    emoji: String,
-    title: String,
-    description: String,
-    onClick: () -> Unit
-) {
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                onClick()
-            },
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 3.dp
-        )
-    ) {
-
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Box(
-                modifier = Modifier
-                    .size(58.dp)
-                    .background(
-                        Color(0xFFE3F2FD),
-                        RoundedCornerShape(16.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-
-                Text(
-                    text = emoji,
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
-
-            Spacer(modifier = Modifier.width(14.dp))
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-
-                Text(
-                    text = title,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = description,
-                    color = Color.Gray,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-
-            Text(
-                text = "›",
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color(0xFF1565C0)
-            )
-        }
-    }
-}
-
-/* =========================================================
-   SECTION CABLE
-   ========================================================= */
-
-@Composable
-fun CableScreen(
-    onBack: () -> Unit
-) {
-
-    var currentText by remember { mutableStateOf("") }
-    var lengthText by remember { mutableStateOf("") }
-    var voltageText by remember { mutableStateOf("230") }
-    var maxDropText by remember { mutableStateOf("5") }
-
-    var threePhase by remember { mutableStateOf(false) }
-    var copper by remember { mutableStateOf(true) }
-
-    var result by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf("") }
-
-    val sections = listOf(
-        1.5,
-        2.5,
-        4.0,
-        6.0,
-        10.0,
-        16.0,
-        25.0,
-        35.0,
-        50.0,
-        70.0,
-        95.0,
-        120.0,
-        150.0,
-        185.0,
-        240.0
-    )
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp)
-    ) {
-
-        TextButton(onClick = onBack) {
-            Text("← Retour")
-        }
 
         Text(
-            text = "🔌 Section de câble",
-            style = MaterialTheme.typography.headlineSmall,
+            text = "مساعد الكهرباء",
+            style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
 
         Text(
-            text = "Pré-dimensionnement selon la chute de tension",
-            color = Color.Gray
+            text = "أدوات سريعة للحسابات الكهربائية"
         )
 
-        Spacer(modifier = Modifier.height(18.dp))
-
-        SectionBox(title = "⚡ Circuit") {
+        SectionBox(
+            title = "⚡ حساب التيار"
+        ) {
 
             Text(
-                text = "Type de réseau",
-                fontWeight = FontWeight.Bold
+                text = "يمكنك حساب التيار من القدرة والجهد."
             )
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                RadioButton(
-                    selected = !threePhase,
-                    onClick = {
-                        threePhase = false
-                    }
-                )
-
-                Text("Monophasé")
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                RadioButton(
-                    selected = threePhase,
-                    onClick = {
-                        threePhase = true
-                    }
-                )
-
-                Text("Triphasé")
-            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Matériau",
+                text = "I = P ÷ V",
                 fontWeight = FontWeight.Bold
             )
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                RadioButton(
-                    selected = copper,
-                    onClick = {
-                        copper = true
-                    }
-                )
-
-                Text("Cuivre")
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                RadioButton(
-                    selected = !copper,
-                    onClick = {
-                        copper = false
-                    }
-                )
-
-                Text("Aluminium")
-            }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        SectionBox(title = "📊 Paramètres") {
-
-            NumberField(
-                value = currentText,
-                label = "Courant (A)",
-                onValueChange = {
-                    currentText = it
-                    error = ""
-                }
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            NumberField(
-                value = lengthText,
-                label = "Longueur de la ligne (m)",
-                onValueChange = {
-                    lengthText = it
-                    error = ""
-                }
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            NumberField(
-                value = voltageText,
-                label = "Tension (V)",
-                onValueChange = {
-                    voltageText = it
-                    error = ""
-                }
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            NumberField(
-                value = maxDropText,
-                label = "Chute maximale (%)",
-                onValueChange = {
-                    maxDropText = it
-                    error = ""
-                }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(18.dp))
-
-        Button(
-            onClick = {
-
-                try {
-
-                    val current = currentText.toDouble()
-                    val length = lengthText.toDouble()
-                    val voltage = voltageText.toDouble()
-                    val maxDrop = maxDropText.toDouble()
-
-                    if (
-                        current <= 0 ||
-                        length <= 0 ||
-                        voltage <= 0 ||
-                        maxDrop <= 0
-                    ) {
-
-                        error = "Les valeurs doivent être supérieures à zéro."
-                        result = ""
-
-                    } else {
-
-                        val rho = if (copper) {
-                            0.0175
-                        } else {
-                            0.0282
-                        }
-
-                        val factor = if (threePhase) {
-                            sqrt(3.0)
-                        } else {
-                            2.0
-                        }
-
-                        var selectedSection: Double? = null
-                        var selectedDrop = 0.0
-                        var selectedPercent = 0.0
-
-                        for (section in sections) {
-
-                            val resistance =
-                                rho * length / section
-
-                            val drop =
-                                factor * current * resistance
-
-                            val percent =
-                                drop / voltage * 100.0
-
-                            if (percent <= maxDrop) {
-
-                                selectedSection = section
-                                selectedDrop = drop
-                                selectedPercent = percent
-
-                                break
-                            }
-                        }
-
-                        if (selectedSection == null) {
-
-                            result = ""
-
-                            error =
-                                "Aucune section disponible ne respecte la chute maximale."
-
-                        } else {
-
-                            error = ""
-
-                            result =
-                                "Section recommandée : " +
-                                        "${formatNumber(selectedSection)} mm²\n\n" +
-                                        "Chute de tension : " +
-                                        "${formatNumber(selectedDrop)} V\n" +
-                                        "Pourcentage : " +
-                                        "${formatNumber(selectedPercent)} %\n\n" +
-                                        "Matériau : " +
-                                        if (copper) "Cuivre" else "Aluminium"
-                        }
-                    }
-
-                } catch (_: Exception) {
-
-                    result = ""
-                    error = "Veuillez vérifier les valeurs saisies."
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(55.dp),
-            shape = RoundedCornerShape(15.dp)
+        SectionBox(
+            title = "🔌 حساب القدرة"
         ) {
 
             Text(
-                text = "CALCULER LA SECTION",
+                text = "القدرة الكهربائية:"
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "P = V × I",
                 fontWeight = FontWeight.Bold
             )
         }
 
-        if (error.isNotEmpty()) {
+        SectionBox(
+            title = "🛡 اختيار القاطع"
+        ) {
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            ErrorBox(text = error)
+            Text(
+                text = "أدخل القدرة والجهد في صفحة القاطع للحصول على قيمة مقترحة."
+            )
         }
 
-        if (result.isNotEmpty()) {
+        SectionBox(
+            title = "📐 حساب هبوط الجهد"
+        ) {
 
-            Spacer(modifier = Modifier.height(18.dp))
-
-            ResultBox(text = result)
+            Text(
+                text = "أدخل طول الكابل والتيار والمقاومة لحساب هبوط الجهد."
+            )
         }
-
-        Spacer(modifier = Modifier.height(30.dp))
     }
 }
 
 /* =========================================================
-   CHUTE DE TENSION
+   BREAKER SCREEN
    ========================================================= */
 
 @Composable
-fun VoltageDropScreen(
-    onBack: () -> Unit
+fun BreakerScreen(
+    modifier: Modifier = Modifier
 ) {
 
-    var currentText by remember { mutableStateOf("") }
-    var lengthText by remember { mutableStateOf("") }
-    var sectionText by remember { mutableStateOf("2.5") }
-    var voltageText by remember { mutableStateOf("230") }
+    var powerText by remember {
+        mutableStateOf("")
+    }
 
-    var threePhase by remember { mutableStateOf(false) }
-    var copper by remember { mutableStateOf(true) }
+    var voltageText by remember {
+        mutableStateOf("230")
+    }
 
-    var result by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf("") }
+    var result by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    var error by remember {
+        mutableStateOf<String?>(null)
+    }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(20.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 
-        TextButton(onClick = onBack) {
-            Text("← Retour")
-        }
-
         Text(
-            text = "📐 Chute de tension",
+            text = "⚡ حساب القاطع",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
 
         Text(
-            text = "Calcul de la chute de tension de la ligne",
-            color = Color.Gray
+            text = "حساب تقري للتيار واختيار قاطع مناسب."
         )
 
-        Spacer(modifier = Modifier.height(18.dp))
+        SectionBox(
+            title = "المعطيات"
+        ) {
 
-        SectionBox(title = "⚡ Circuit") {
+            NumberField(
+                value = powerText,
+                onValueChange = {
+                    powerText = it
+                    error = null
+                },
+                label = "القدرة (W)"
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            NumberField(
+                value = voltageText,
+                onValueChange = {
+                    voltageText = it
+                    error = null
+                },
+                label = "الجهد (V)"
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = {
+
+                    val power = powerText.toDoubleOrNull()
+                    val voltage = voltageText.toDoubleOrNull()
+
+                    if (power == null || voltage == null) {
+
+                        error = "أدخل أرقاماً صحيحة."
+
+                        result = null
+
+                    } else if (power <= 0 || voltage <= 0) {
+
+                        error = "يجب أن تكون القيم أكبر من صفر."
+
+                        result = null
+
+                    } else {
+
+                        val current = power / voltage
+
+                        val recommended = when {
+                            current <= 6 -> 6
+                            current <= 10 -> 10
+                            current <= 16 -> 16
+                            current <= 20 -> 20
+                            current <= 25 -> 25
+                            current <= 32 -> 32
+                            current <= 40 -> 40
+                            current <= 50 -> 50
+                            current <= 63 -> 63
+                            else -> 80
+                        }
+
+                        result =
+                            "التيار المحسوب: ${formatNumber(current)} A\n" +
+                            "القاطع المقترح: ${recommended} A"
+
+                        error = null
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("احسب")
+            }
+        }
+
+        error?.let {
+            ErrorBox(
+                message = it
+            )
+        }
+
+        result?.let {
+            ResultBox(
+                title = "النتيجة",
+                message = it
+            )
+        }
+
+        SectionBox(
+            title = "⚠️ ملاحظة"
+        ) {
 
             Text(
-                text = "Type de réseau",
+                text = "هذه نتيجة حسابية إرشادية وليست بديلاً عن اختيار القاطع والكابل حسب شروط التركيب والمعايير المحلية."
+            )
+        }
+    }
+}
+
+/* =========================================================
+   PLAN SCREEN
+   ========================================================= */
+
+@Composable
+fun PlanScreen(
+    modifier: Modifier = Modifier
+) {
+
+    var lengthText by remember {
+        mutableStateOf("")
+    }
+
+    var currentText by remember {
+        mutableStateOf("")
+    }
+
+    var resistanceText by remember {
+        mutableStateOf("0.0175")
+    }
+
+    var result by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    var error by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+
+        Text(
+            text = "📐 حساب هبوط الجهد",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold
+        )
+
+        Text(
+            text = "حساب تقري لهبوط الجهد في دائرة أحادية الطور."
+        )
+
+        SectionBox(
+            title = "المعطيات"
+        ) {
+
+            NumberField(
+                value = lengthText,
+                onValueChange = {
+                    lengthText = it
+                    error = null
+                },
+                label = "طول الكابل (m)"
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            NumberField(
+                value = currentText,
+                onValueChange = {
+                    currentText = it
+                    error = null
+                },
+                label = "التيار (A)"
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            NumberField(
+                value = resistanceText,
+                onValueChange = {
+                    resistanceText = it
+                    error = null
+                },
+                label = "المقاومة النوعية Ω·mm²/m"
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = {
+
+                    val length = lengthText.toDoubleOrNull()
+                    val current = currentText.toDoubleOrNull()
+                    val resistance = resistanceText.toDoubleOrNull()
+
+                    if (length == null ||
+                        current == null ||
+                        resistance == null
+                    ) {
+
+                        error = "أدخل جميع القيم."
+
+                        result = null
+
+                    } else if (
+                        length <= 0 ||
+                        current <= 0 ||
+                        resistance <= 0
+                    ) {
+
+                        error = "يجب أن تكون القيم أكبر من صفر."
+
+                        result = null
+
+                    } else {
+
+                        /*
+                         * حساب مبسط لدائرة أحادية الطور:
+                         *
+                         * ΔV = 2 × L × I × ρ / S
+                         *
+                         * هنا نعرض المقاومة التقريبية
+                         * لكل مقطع، بدون الحاجة لإدخال المقطع.
+                         */
+
+                        val section25 =
+                            (2 * length * current * resistance) / 2.5
+
+                        val section4 =
+                            (2 * length * current * resistance) / 4.0
+
+                        val section6 =
+                            (2 * length * current * resistance) / 6.0
+
+                        result =
+                            "هبوط 2.5 mm²: ${formatNumber(section25)} V\n" +
+                            "هبوط 4 mm²: ${formatNumber(section4)} V\n" +
+                            "هبوط 6 mm²: ${formatNumber(section6)} V"
+
+                        error = null
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("احسب")
+            }
+        }
+
+        error?.let {
+            ErrorBox(
+                message = it
+            )
+        }
+
+        result?.let {
+            ResultBox(
+                title = "النتيجة",
+                message = it
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        SectionBox(
+            title = "🔧 معلومات"
+        ) {
+
+            Text(
+                text = "يمكن استعمال هذه الصفحة للمقارنة بين مقاطع الكابلات بشكل تقريبي."
+            )
+        }
+    }
+}
+
+/* =========================================================
+   SECTION BOX
+   ========================================================= */
+
+@Composable
+fun SectionBox(
+    title: String,
+    content: @Composable () -> Unit
+) {
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
+        )
+    ) {
+
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
 
-                RadioButton(
-                    selected = !threePhase,
-                    onClick = {
-                        threePhase = false
-                    }
-                )
+            content()
+        }
+    }
+}
 
-                Text("Monophasé")
+/* =========================================================
+   NUMBER FIELD
+   ========================================================= */
 
-                Spacer(modifier = Modifier.width(8.dp))
+@Composable
+fun NumberField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String
+) {
 
-                RadioButton(
-                    selected = threePhase,
-                    onClick = {
-                        threePhase = true
-                    }
-                )
+    OutlinedTextField(
+        value = value,
+        onValueChange = { newValue ->
 
-                Text("Triphasé")
+            val filtered = newValue.filter {
+                it.isDigit() || it == '.' || it == ','
             }
 
-            Spacer(modifier = Modifier.height(8
+            onValueChange(
+                filtered.replace(',', '.')
+            )
+        },
+        label = {
+            Text(label)
+        },
+        singleLine = true,
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+/* =========================================================
+   ERROR BOX
+   ========================================================= */
+
+@Composable
+fun ErrorBox(
+    message: String
+) {
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor =
+                MaterialTheme.colorScheme.errorContainer
+        )
+    ) {
+
+        Text(
+            text = "❌ $message",
+            modifier = Modifier.padding(16.dp),
+            color = MaterialTheme.colorScheme.onErrorContainer
+        )
+    }
+}
+
+/* =========================================================
+   RESULT BOX
+   ========================================================= */
+
+@Composable
+fun ResultBox(
+    title: String,
+    message: String
+) {
+
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
+            Divider()
+
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    }
+}
+
+/* =========================================================
+   FORMAT NUMBER
+   ========================================================= */
+
+fun formatNumber(
+    value: Double
+): String {
+
+    if (value.isNaN() || value.isInfinite()) {
+        return "0"
+    }
+
+    return if (value == value.toLong().toDouble()) {
+        value.toLong().toString()
+    } else {
+        String.format(
+            java.util.Locale.US,
+            "%.2f",
+            value
+        )
+    }
+}
