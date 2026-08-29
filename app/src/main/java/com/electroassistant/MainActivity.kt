@@ -3,7 +3,6 @@ package com.electroassistant
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,8 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,8 +34,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ElectroAssistantApp() {
 
-    var page by remember { mutableStateOf("home") }
-
     MaterialTheme(
         colorScheme = lightColorScheme(
             primary = Color(0xFF1565C0),
@@ -46,10 +41,14 @@ fun ElectroAssistantApp() {
             background = Color(0xFFF5F7FA)
         )
     ) {
+
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = Color(0xFFF5F7FA)
         ) {
+
+            var page by remember { mutableStateOf("home") }
+
             when (page) {
 
                 "home" -> HomeScreen(
@@ -90,6 +89,7 @@ fun HomeScreen(
     onBreaker: () -> Unit,
     onPlan: () -> Unit
 ) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -100,13 +100,9 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color(0xFF1565C0))
-                .padding(
-                    start = 24.dp,
-                    end = 24.dp,
-                    top = 35.dp,
-                    bottom = 30.dp
-                )
+                .padding(24.dp)
         ) {
+
             Column {
 
                 Text(
@@ -202,6 +198,7 @@ fun HomeScreen(
                     containerColor = Color.White
                 )
             ) {
+
                 Column(
                     modifier = Modifier.padding(20.dp)
                 ) {
@@ -258,6 +255,7 @@ fun HomeCard(
     description: String,
     onClick: () -> Unit
 ) {
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -272,9 +270,7 @@ fun HomeCard(
     ) {
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
@@ -287,6 +283,7 @@ fun HomeCard(
                     ),
                 contentAlignment = Alignment.Center
             ) {
+
                 Text(
                     text = emoji,
                     style = MaterialTheme.typography.titleLarge
@@ -512,11 +509,17 @@ fun CableScreen(
 
                     } else {
 
-                        val rho =
-                            if (copper) 0.0175 else 0.0282
+                        val rho = if (copper) {
+                            0.0175
+                        } else {
+                            0.0282
+                        }
 
-                        val factor =
-                            if (threePhase) sqrt(3.0) else 2.0
+                        val factor = if (threePhase) {
+                            sqrt(3.0)
+                        } else {
+                            2.0
+                        }
 
                         var selectedSection: Double? = null
                         var selectedDrop = 0.0
@@ -533,729 +536,4 @@ fun CableScreen(
                             val percent =
                                 drop / voltage * 100.0
 
-                            if (percent <= maxDrop) {
-
-                                selectedSection = section
-                                selectedDrop = drop
-                                selectedPercent = percent
-
-                                break
-                            }
-                        }
-
-                        if (selectedSection == null) {
-
-                            error =
-                                "Aucune section disponible ne respecte la chute maximale."
-
-                            result = ""
-
-                        } else {
-
-                            error = ""
-
-                            result =
-                                "Section recommandée : " +
-                                        "${formatNumber(selectedSection)} mm²\n\n" +
-                                        "Chute de tension : " +
-                                        "${formatNumber(selectedDrop)} V\n" +
-                                        "Pourcentage : " +
-                                        "${formatNumber(selectedPercent)} %\n\n" +
-                                        "Matériau : " +
-                                        if (copper) "Cuivre" else "Aluminium"
-                        }
-                    }
-
-                } catch (e: Exception) {
-
-                    result = ""
-                    error = "Veuillez vérifier les valeurs saisies."
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(55.dp),
-            shape = RoundedCornerShape(15.dp)
-        ) {
-
-            Text(
-                text = "CALCULER LA SECTION",
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        if (error.isNotEmpty()) {
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            ErrorBox(error)
-        }
-
-        if (result.isNotEmpty()) {
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            ResultBox(result)
-        }
-
-        Spacer(modifier = Modifier.height(30.dp))
-    }
-}
-
-/* =========================================================
-   CHUTE DE TENSION
-   ========================================================= */
-
-@Composable
-fun VoltageDropScreen(
-    onBack: () -> Unit
-) {
-
-    var currentText by remember { mutableStateOf("") }
-    var lengthText by remember { mutableStateOf("") }
-    var sectionText by remember { mutableStateOf("2.5") }
-    var voltageText by remember { mutableStateOf("230") }
-
-    var threePhase by remember { mutableStateOf(false) }
-    var copper by remember { mutableStateOf(true) }
-
-    var result by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp)
-    ) {
-
-        TextButton(onClick = onBack) {
-            Text("← Retour")
-        }
-
-        Text(
-            text = "📐 Chute de tension",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-
-        Text(
-            text = "Calcul de la chute de tension de la ligne",
-            color = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.height(18.dp))
-
-        SectionBox("⚡ Circuit") {
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                RadioButton(
-                    selected = !threePhase,
-                    onClick = { threePhase = false }
-                )
-
-                Text("Monophasé")
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                RadioButton(
-                    selected = threePhase,
-                    onClick = { threePhase = true }
-                )
-
-                Text("Triphasé")
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                RadioButton(
-                    selected = copper,
-                    onClick = { copper = true }
-                )
-
-                Text("Cuivre")
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                RadioButton(
-                    selected = !copper,
-                    onClick = { copper = false }
-                )
-
-                Text("Aluminium")
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        SectionBox("📊 Paramètres") {
-
-            NumberField(
-                value = currentText,
-                label = "Courant (A)",
-                onValueChange = {
-                    currentText = it
-                    error = ""
-                }
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            NumberField(
-                value = lengthText,
-                label = "Longueur (m)",
-                onValueChange = {
-                    lengthText = it
-                    error = ""
-                }
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            NumberField(
-                value = sectionText,
-                label = "Section (mm²)",
-                onValueChange = {
-                    sectionText = it
-                    error = ""
-                }
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            NumberField(
-                value = voltageText,
-                label = "Tension (V)",
-                onValueChange = {
-                    voltageText = it
-                    error = ""
-                }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(18.dp))
-
-        Button(
-            onClick = {
-
-                try {
-
-                    val current = currentText.toDouble()
-                    val length = lengthText.toDouble()
-                    val section = sectionText.toDouble()
-                    val voltage = voltageText.toDouble()
-
-                    if (
-                        current <= 0 ||
-                        length <= 0 ||
-                        section <= 0 ||
-                        voltage <= 0
-                    ) {
-
-                        error =
-                            "Toutes les valeurs doivent être positives."
-
-                        result = ""
-
-                    } else {
-
-                        val rho =
-                            if (copper) 0.0175 else 0.0282
-
-                        val resistance =
-                            rho * length / section
-
-                        val factor =
-                            if (threePhase) sqrt(3.0) else 2.0
-
-                        val drop =
-                            factor * current * resistance
-
-                        val percent =
-                            drop / voltage * 100.0
-
-                        error = ""
-
-                        result =
-                            "ΔU = ${formatNumber(drop)} V\n\n" +
-                                    "Chute = ${formatNumber(percent)} %\n\n" +
-                                    "Résistance de ligne = " +
-                                    "${formatNumber(resistance)} Ω"
-                    }
-
-                } catch (e: Exception) {
-
-                    result = ""
-                    error = "Veuillez vérifier les valeurs saisies."
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(55.dp),
-            shape = RoundedCornerShape(15.dp)
-        ) {
-
-            Text(
-                text = "CALCULER",
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        if (error.isNotEmpty()) {
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            ErrorBox(error)
-        }
-
-        if (result.isNotEmpty()) {
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            ResultBox(result)
-        }
-
-        Spacer(modifier = Modifier.height(30.dp))
-    }
-}
-
-/* =========================================================
-   DISJONCTEUR
-   ========================================================= */
-
-@Composable
-fun BreakerScreen(
-    onBack: () -> Unit
-) {
-
-    var currentText by remember { mutableStateOf("") }
-    var result by remember { mutableStateOf("") }
-    var error by remember { mutableStateOf("") }
-
-    val breakers = listOf(
-        2, 4, 6, 10, 16, 20, 25, 32,
-        40, 50, 63, 80, 100, 125, 160
-    )
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp)
-    ) {
-
-        TextButton(onClick = onBack) {
-            Text("← Retour")
-        }
-
-        Text(
-            text = "🛡️ Calibre disjoncteur",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-
-        Text(
-            text = "Estimation simple du calibre supérieur au courant.",
-            color = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        SectionBox("⚡ Courant") {
-
-            NumberField(
-                value = currentText,
-                label = "Courant calculé (A)",
-                onValueChange = {
-                    currentText = it
-                    error = ""
-                }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(18.dp))
-
-        Button(
-            onClick = {
-
-                try {
-
-                    val current =
-                        currentText.toDouble()
-
-                    if (current <= 0) {
-
-                        error =
-                            "Le courant doit être supérieur à zéro."
-
-                        result = ""
-
-                    } else {
-
-                        val selected =
-                            breakers.firstOrNull {
-                                it.toDouble() >= current
-                            }
-
-                        if (selected == null) {
-
-                            error =
-                                "Courant trop élevé pour la liste disponible."
-
-                            result = ""
-
-                        } else {
-
-                            error = ""
-
-                            result =
-                                "Calibre indicatif : ${selected} A\n\n" +
-                                        "Courant saisi : " +
-                                        "${formatNumber(current)} A"
-                        }
-                    }
-
-                } catch (e: Exception) {
-
-                    error =
-                        "Veuillez entrer un courant valide."
-
-                    result = ""
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(55.dp),
-            shape = RoundedCornerShape(15.dp)
-        ) {
-
-            Text(
-                text = "CALCULER LE CALIBRE",
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        if (error.isNotEmpty()) {
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            ErrorBox(error)
-        }
-
-        if (result.isNotEmpty()) {
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            ResultBox(result)
-        }
-
-        Spacer(modifier = Modifier.height(25.dp))
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White
-            )
-        ) {
-
-            Text(
-                text =
-                    "⚠️ Attention : le choix réel du disjoncteur "
-                            + "dépend notamment de la section du câble, "
-                            + "du mode de pose, du pouvoir de coupure "
-                            + "et des règles de protection applicables.",
-                modifier = Modifier.padding(18.dp),
-                color = Color(0xFF795548),
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-
-        Spacer(modifier = Modifier.height(25.dp))
-    }
-}
-
-/* =========================================================
-   PLAN ÉLECTRIQUE
-   ========================================================= */
-
-@Composable
-fun PlanScreen(
-    onBack: () -> Unit
-) {
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp)
-    ) {
-
-        TextButton(onClick = onBack) {
-            Text("← Retour")
-        }
-
-        Text(
-            text = "📄 Plan électrique",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-
-        Text(
-            text = "Modes de pose de référence",
-            color = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.height(18.dp))
-
-        PlanImage(
-            image = R.drawable.mode_a1,
-            title = "Mode A1"
-        )
-
-        PlanImage(
-            image = R.drawable.mode_a2,
-            title = "Mode A2"
-        )
-
-        PlanImage(
-            image = R.drawable.mode_b1,
-            title = "Mode B1"
-        )
-
-        PlanImage(
-            image = R.drawable.mode_b2,
-            title = "Mode B2"
-        )
-
-        PlanImage(
-            image = R.drawable.mode_c,
-            title = "Mode C"
-        )
-
-        PlanImage(
-            image = R.drawable.mode_d1,
-            title = "Mode D1"
-        )
-
-        PlanImage(
-            image = R.drawable.mode_e,
-            title = "Mode E"
-        )
-
-        PlanImage(
-            image = R.drawable.mode_f,
-            title = "Mode F"
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White
-            )
-        ) {
-
-            Text(
-                text =
-                    "💡 هذه الصور موجودة داخل التطبيق كمرجع "
-                            + "لاختيار طريقة التركيب المناسبة.",
-                modifier = Modifier.padding(18.dp),
-                color = Color.Gray
-            )
-        }
-
-        Spacer(modifier = Modifier.height(25.dp))
-    }
-}
-
-/* =========================================================
-   PLAN IMAGE
-   ========================================================= */
-
-@Composable
-fun PlanImage(
-    image: Int,
-    title: String
-) {
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 14.dp),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 3.dp
-        )
-    ) {
-
-        Column {
-
-            Text(
-                text = title,
-                modifier = Modifier.padding(15.dp),
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Image(
-                painter = painterResource(id = image),
-                contentDescription = title,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(190.dp),
-                contentScale = ContentScale.Fit
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-        }
-    }
-}
-
-/* =========================================================
-   NUMBER FIELD
-   ========================================================= */
-
-@Composable
-fun NumberField(
-    value: String,
-    label: String,
-    onValueChange: (String) -> Unit
-) {
-
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth(),
-        label = {
-            Text(label)
-        },
-        singleLine = true
-    )
-}
-
-/* =========================================================
-   SECTION BOX
-   ========================================================= */
-
-@Composable
-fun SectionBox(
-    title: String,
-    content: @Composable ColumnScope.() -> Unit
-) {
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        )
-    ) {
-
-        Column(
-            modifier = Modifier.padding(18.dp)
-        ) {
-
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            content()
-        }
-    }
-}
-
-/* =========================================================
-   RESULT BOX
-   ========================================================= */
-
-@Composable
-fun ResultBox(
-    text: String
-) {
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFE8F5E9)
-        )
-    ) {
-
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-
-            Text(
-                text = "✅ Résultat",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF2E7D32)
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = text,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-/* =========================================================
-   ERROR BOX
-   ========================================================= */
-
-@Composable
-fun ErrorBox(
-    text: String
-) {
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(15.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFFEBEE)
-        )
-    ) {
-
-        Text(
-            text = "⚠️ $text",
-            modifier = Modifier.padding(16.dp),
-            color = Color(0xFFC62828)
-        )
-    }
-}
-
-/* =========================================================
-   FORMAT NUMBER
-   ========================================================= */
-
-fun formatNumber(
-    value: Double
-): String {
-
-    return String.format(
-        Locale.US,
-        "%.2f",
-        value
-    )
-}
+                            if (percent <= maxDrop
