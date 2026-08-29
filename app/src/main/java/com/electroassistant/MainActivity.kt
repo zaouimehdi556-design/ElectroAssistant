@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,12 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.input.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
-import kotlin.math.sqrt
 import java.util.Locale
+import kotlin.math.sqrt
 
 class MainActivity : ComponentActivity() {
 
@@ -32,10 +32,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-/* =========================================================
-   APPLICATION
-   ========================================================= */
 
 @Composable
 fun ElectroAssistantApp() {
@@ -79,20 +75,13 @@ fun ElectroAssistantApp() {
                 "plan" -> PlanScreen(
                     onBack = { page = "home" }
                 )
-
-                else -> HomeScreen(
-                    onCable = { page = "cable" },
-                    onDrop = { page = "drop" },
-                    onBreaker = { page = "breaker" },
-                    onPlan = { page = "plan" }
-                )
             }
         }
     }
 }
 
 /* =========================================================
-   HOME
+   ACCUEIL
    ========================================================= */
 
 @Composable
@@ -225,18 +214,18 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "ElectroAssistant est un outil d'aide au " +
-                                "pré-dimensionnement des installations " +
-                                "électriques du bâtiment.",
+                        text = "ElectroAssistant est un outil d'aide au "
+                                + "pré-dimensionnement des installations "
+                                + "électriques du bâtiment.",
                         color = Color.Gray
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
-                        text = "⚠️ Les résultats sont indicatifs et doivent " +
-                                "être vérifiés selon les normes applicables " +
-                                "et les conditions réelles de l'installation.",
+                        text = "⚠️ Les résultats sont indicatifs et doivent "
+                                + "être vérifiés selon les normes applicables "
+                                + "et les conditions réelles de l'installation.",
                         color = Color(0xFF795548),
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -335,7 +324,7 @@ fun HomeCard(
 }
 
 /* =========================================================
-   CABLE SECTION
+   SECTION CABLE
    ========================================================= */
 
 @Composable
@@ -379,9 +368,7 @@ fun CableScreen(
             .padding(20.dp)
     ) {
 
-        TextButton(
-            onClick = onBack
-        ) {
+        TextButton(onClick = onBack) {
             Text("← Retour")
         }
 
@@ -398,9 +385,7 @@ fun CableScreen(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        SectionBox(
-            title = "⚡ Circuit"
-        ) {
+        SectionBox(title = "⚡ Circuit") {
 
             Text(
                 text = "Type de réseau",
@@ -467,9 +452,7 @@ fun CableScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        SectionBox(
-            title = "📊 Paramètres"
-        ) {
+        SectionBox(title = "📊 Paramètres") {
 
             NumberField(
                 value = currentText,
@@ -521,4 +504,193 @@ fun CableScreen(
 
                 try {
 
-                    val
+                    val current = currentText.toDouble()
+                    val length = lengthText.toDouble()
+                    val voltage = voltageText.toDouble()
+                    val maxDrop = maxDropText.toDouble()
+
+                    if (
+                        current <= 0 ||
+                        length <= 0 ||
+                        voltage <= 0 ||
+                        maxDrop <= 0
+                    ) {
+
+                        error = "Les valeurs doivent être supérieures à zéro."
+                        result = ""
+
+                    } else {
+
+                        val rho = if (copper) {
+                            0.0175
+                        } else {
+                            0.0282
+                        }
+
+                        val factor = if (threePhase) {
+                            sqrt(3.0)
+                        } else {
+                            2.0
+                        }
+
+                        var selectedSection: Double? = null
+                        var selectedDrop = 0.0
+                        var selectedPercent = 0.0
+
+                        for (section in sections) {
+
+                            val resistance =
+                                rho * length / section
+
+                            val drop =
+                                factor * current * resistance
+
+                            val percent =
+                                drop / voltage * 100.0
+
+                            if (percent <= maxDrop) {
+
+                                selectedSection = section
+                                selectedDrop = drop
+                                selectedPercent = percent
+
+                                break
+                            }
+                        }
+
+                        if (selectedSection == null) {
+
+                            result = ""
+
+                            error =
+                                "Aucune section disponible ne respecte la chute maximale."
+
+                        } else {
+
+                            error = ""
+
+                            result =
+                                "Section recommandée : " +
+                                        "${formatNumber(selectedSection)} mm²\n\n" +
+                                        "Chute de tension : " +
+                                        "${formatNumber(selectedDrop)} V\n" +
+                                        "Pourcentage : " +
+                                        "${formatNumber(selectedPercent)} %\n\n" +
+                                        "Matériau : " +
+                                        if (copper) "Cuivre" else "Aluminium"
+                        }
+                    }
+
+                } catch (_: Exception) {
+
+                    result = ""
+                    error = "Veuillez vérifier les valeurs saisies."
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(55.dp),
+            shape = RoundedCornerShape(15.dp)
+        ) {
+
+            Text(
+                text = "CALCULER LA SECTION",
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        if (error.isNotEmpty()) {
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            ErrorBox(text = error)
+        }
+
+        if (result.isNotEmpty()) {
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            ResultBox(text = result)
+        }
+
+        Spacer(modifier = Modifier.height(30.dp))
+    }
+}
+
+/* =========================================================
+   CHUTE DE TENSION
+   ========================================================= */
+
+@Composable
+fun VoltageDropScreen(
+    onBack: () -> Unit
+) {
+
+    var currentText by remember { mutableStateOf("") }
+    var lengthText by remember { mutableStateOf("") }
+    var sectionText by remember { mutableStateOf("2.5") }
+    var voltageText by remember { mutableStateOf("230") }
+
+    var threePhase by remember { mutableStateOf(false) }
+    var copper by remember { mutableStateOf(true) }
+
+    var result by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(20.dp)
+    ) {
+
+        TextButton(onClick = onBack) {
+            Text("← Retour")
+        }
+
+        Text(
+            text = "📐 Chute de tension",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold
+        )
+
+        Text(
+            text = "Calcul de la chute de tension de la ligne",
+            color = Color.Gray
+        )
+
+        Spacer(modifier = Modifier.height(18.dp))
+
+        SectionBox(title = "⚡ Circuit") {
+
+            Text(
+                text = "Type de réseau",
+                fontWeight = FontWeight.Bold
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                RadioButton(
+                    selected = !threePhase,
+                    onClick = {
+                        threePhase = false
+                    }
+                )
+
+                Text("Monophasé")
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                RadioButton(
+                    selected = threePhase,
+                    onClick = {
+                        threePhase = true
+                    }
+                )
+
+                Text("Triphasé")
+            }
+
+            Spacer(modifier = Modifier.height(8
