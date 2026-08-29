@@ -25,17 +25,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlin.math.sqrt
 
 class MainActivity : ComponentActivity() {
@@ -56,65 +56,48 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/* =========================================================
+   APP
+   ========================================================= */
+
 @Composable
 fun ElectroAssistantApp() {
 
-    var selectedScreen by remember {
-        mutableIntStateOf(0)
+    var screen by remember {
+        mutableStateOf("home")
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Electro Assistant",
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            )
-        },
-        bottomBar = {
-            NavigationBar {
+    when (screen) {
 
-                NavigationBarItem(
-                    selected = selectedScreen == 0,
-                    onClick = { selectedScreen = 0 },
-                    icon = { Text("⌂") },
-                    label = { Text("الرئيسية") }
-                )
-
-                NavigationBarItem(
-                    selected = selectedScreen == 1,
-                    onClick = { selectedScreen = 1 },
-                    icon = { Text("⚡") },
-                    label = { Text("القاطع") }
-                )
-
-                NavigationBarItem(
-                    selected = selectedScreen == 2,
-                    onClick = { selectedScreen = 2 },
-                    icon = { Text("▣") },
-                    label = { Text("الخطة") }
-                )
+        "home" -> HomeScreen(
+            onBreaker = {
+                screen = "breaker"
+            },
+            onPlan = {
+                screen = "plan"
+            },
+            onCable = {
+                screen = "cable"
             }
-        }
-    ) { padding ->
+        )
 
-        when (selectedScreen) {
+        "breaker" -> BreakerScreen(
+            onBack = {
+                screen = "home"
+            }
+        )
 
-            0 -> HomeScreen(
-                modifier = Modifier.padding(padding)
-            )
+        "plan" -> PlanScreen(
+            onBack = {
+                screen = "home"
+            }
+        )
 
-            1 -> BreakerScreen(
-                modifier = Modifier.padding(padding)
-            )
-
-            2 -> PlanScreen(
-                modifier = Modifier.padding(padding)
-            )
-        }
+        "cable" -> CableScreen(
+            onBack = {
+                screen = "home"
+            }
+        )
     }
 }
 
@@ -124,75 +107,114 @@ fun ElectroAssistantApp() {
 
 @Composable
 fun HomeScreen(
-    modifier: Modifier = Modifier
+    onBreaker: () -> Unit,
+    onPlan: () -> Unit,
+    onCable: () -> Unit
 ) {
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "ElectroAssistant",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            )
+        }
+    ) { padding ->
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+
+            Text(
+                text = "المساعد الكهربائي",
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Text(
+                text = "أدوات بسيطة للحسابات الكهربائية"
+            )
+
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
+            MenuCard(
+                title = "حساب القاطع",
+                description = "احسب التيار والقاطع المناسب حسب القدرة والجهد.",
+                buttonText = "فتح",
+                onClick = onBreaker
+            )
+
+            MenuCard(
+                title = "حساب القدرة والتيار",
+                description = "احسب القدرة، التيار، والقدرة الظاهرية.",
+                buttonText = "فتح",
+                onClick = onPlan
+            )
+
+            MenuCard(
+                title = "حساب مقطع الكابل",
+                description = "اقتراح مقطع كابل حسب التيار.",
+                buttonText = "فتح",
+                onClick = onCable
+            )
+        }
+    }
+}
+
+@Composable
+fun MenuCard(
+    title: String,
+    description: String,
+    buttonText: String,
+    onClick: () -> Unit
+) {
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 3.dp
+        )
     ) {
 
-        Text(
-            text = "مساعد الكهرباء",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
-        )
-
-        Text(
-            text = "أدوات سريعة للحسابات الكهربائية"
-        )
-
-        SectionBox(
-            title = "⚡ حساب التيار"
+        Column(
+            modifier = Modifier.padding(16.dp)
         ) {
 
             Text(
-                text = "يمكنك حساب التيار من القدرة والجهد."
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "I = P ÷ V",
+                text = title,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
-        }
 
-        SectionBox(
-            title = "🔌 حساب القدرة"
-        ) {
-
-            Text(
-                text = "القدرة الكهربائية:"
+            Spacer(
+                modifier = Modifier.height(6.dp)
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
-
             Text(
-                text = "P = V × I",
-                fontWeight = FontWeight.Bold
+                text = description
             )
-        }
 
-        SectionBox(
-            title = "🛡 اختيار القاطع"
-        ) {
-
-            Text(
-                text = "أدخل القدرة والجهد في صفحة القاطع للحصول على قيمة مقترحة."
+            Spacer(
+                modifier = Modifier.height(12.dp)
             )
-        }
 
-        SectionBox(
-            title = "📐 حساب هبوط الجهد"
-        ) {
-
-            Text(
-                text = "أدخل طول الكابل والتيار والمقاومة لحساب هبوط الجهد."
-            )
+            Button(
+                onClick = onClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(buttonText)
+            }
         }
     }
 }
@@ -203,7 +225,7 @@ fun HomeScreen(
 
 @Composable
 fun BreakerScreen(
-    modifier: Modifier = Modifier
+    onBack: () -> Unit
 ) {
 
     var powerText by remember {
@@ -215,297 +237,433 @@ fun BreakerScreen(
     }
 
     var result by remember {
-        mutableStateOf<String?>(null)
+        mutableStateOf("")
     }
 
     var error by remember {
-        mutableStateOf<String?>(null)
+        mutableStateOf("")
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text("حساب القاطع")
+                }
+            )
+        }
+    ) { padding ->
 
-        Text(
-            text = "⚡ حساب القاطع",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-
-        Text(
-            text = "حساب تقري للتيار واختيار قاطع مناسب."
-        )
-
-        SectionBox(
-            title = "المعطيات"
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
 
-            NumberField(
-                value = powerText,
-                onValueChange = {
-                    powerText = it
-                    error = null
-                },
-                label = "القدرة (W)"
-            )
+            SectionBox(
+                title = "بيانات الحمل"
+            ) {
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            NumberField(
-                value = voltageText,
-                onValueChange = {
-                    voltageText = it
-                    error = null
-                },
-                label = "الجهد (V)"
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = {
-
-                    val power = powerText.toDoubleOrNull()
-                    val voltage = voltageText.toDoubleOrNull()
-
-                    if (power == null || voltage == null) {
-
-                        error = "أدخل أرقاماً صحيحة."
-
-                        result = null
-
-                    } else if (power <= 0 || voltage <= 0) {
-
-                        error = "يجب أن تكون القيم أكبر من صفر."
-
-                        result = null
-
-                    } else {
-
-                        val current = power / voltage
-
-                        val recommended = when {
-                            current <= 6 -> 6
-                            current <= 10 -> 10
-                            current <= 16 -> 16
-                            current <= 20 -> 20
-                            current <= 25 -> 25
-                            current <= 32 -> 32
-                            current <= 40 -> 40
-                            current <= 50 -> 50
-                            current <= 63 -> 63
-                            else -> 80
-                        }
-
-                        result =
-                            "التيار المحسوب: ${formatNumber(current)} A\n" +
-                            "القاطع المقترح: ${recommended} A"
-
-                        error = null
+                NumberField(
+                    value = powerText,
+                    label = "القدرة بالواط W",
+                    onValueChange = {
+                        powerText = it
+                        error = ""
                     }
-                },
+                )
+
+                Spacer(
+                    modifier = Modifier.height(10.dp)
+                )
+
+                NumberField(
+                    value = voltageText,
+                    label = "الجهد بالفولت V",
+                    onValueChange = {
+                        voltageText = it
+                        error = ""
+                    }
+                )
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+                Button(
+                    onClick = {
+
+                        val power = powerText.toDoubleOrNull()
+                        val voltage = voltageText.toDoubleOrNull()
+
+                        if (power == null || voltage == null || power <= 0 || voltage <= 0) {
+
+                            error = "أدخل قدرة وجهد صحيحين."
+
+                            result = ""
+
+                        } else {
+
+                            val current = power / voltage
+                            val recommended = chooseBreaker(current)
+
+                            result =
+                                "التيار المحسوب: ${formatNumber(current)} A\n" +
+                                "القاطع المقترح: ${formatNumber(recommended)} A"
+
+                            error = ""
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("احسب")
+                }
+            }
+
+            if (error.isNotEmpty()) {
+                ErrorBox(error)
+            }
+
+            if (result.isNotEmpty()) {
+                ResultBox(
+                    title = "النتيجة",
+                    text = result
+                )
+            }
+
+            OutlinedButton(
+                onClick = onBack,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("احسب")
+                Text("رجوع")
             }
-        }
-
-        error?.let {
-            ErrorBox(
-                message = it
-            )
-        }
-
-        result?.let {
-            ResultBox(
-                title = "النتيجة",
-                message = it
-            )
-        }
-
-        SectionBox(
-            title = "⚠️ ملاحظة"
-        ) {
-
-            Text(
-                text = "هذه نتيجة حسابية إرشادية وليست بديلاً عن اختيار القاطع والكابل حسب شروط التركيب والمعايير المحلية."
-            )
         }
     }
 }
 
 /* =========================================================
-   PLAN SCREEN
+   PLAN / POWER SCREEN
    ========================================================= */
 
 @Composable
 fun PlanScreen(
-    modifier: Modifier = Modifier
+    onBack: () -> Unit
 ) {
 
-    var lengthText by remember {
-        mutableStateOf("")
+    var voltageText by remember {
+        mutableStateOf("230")
     }
 
     var currentText by remember {
         mutableStateOf("")
     }
 
-    var resistanceText by remember {
-        mutableStateOf("0.0175")
+    var powerFactorText by remember {
+        mutableStateOf("1")
     }
 
     var result by remember {
-        mutableStateOf<String?>(null)
+        mutableStateOf("")
     }
 
     var error by remember {
-        mutableStateOf<String?>(null)
+        mutableStateOf("")
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text("حساب القدرة والتيار")
+                }
+            )
+        }
+    ) { padding ->
 
-        Text(
-            text = "📐 حساب هبوط الجهد",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-
-        Text(
-            text = "حساب تقري لهبوط الجهد في دائرة أحادية الطور."
-        )
-
-        SectionBox(
-            title = "المعطيات"
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
 
-            NumberField(
-                value = lengthText,
-                onValueChange = {
-                    lengthText = it
-                    error = null
-                },
-                label = "طول الكابل (m)"
-            )
+            SectionBox(
+                title = "بيانات الشبكة"
+            ) {
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            NumberField(
-                value = currentText,
-                onValueChange = {
-                    currentText = it
-                    error = null
-                },
-                label = "التيار (A)"
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            NumberField(
-                value = resistanceText,
-                onValueChange = {
-                    resistanceText = it
-                    error = null
-                },
-                label = "المقاومة النوعية Ω·mm²/m"
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = {
-
-                    val length = lengthText.toDoubleOrNull()
-                    val current = currentText.toDoubleOrNull()
-                    val resistance = resistanceText.toDoubleOrNull()
-
-                    if (length == null ||
-                        current == null ||
-                        resistance == null
-                    ) {
-
-                        error = "أدخل جميع القيم."
-
-                        result = null
-
-                    } else if (
-                        length <= 0 ||
-                        current <= 0 ||
-                        resistance <= 0
-                    ) {
-
-                        error = "يجب أن تكون القيم أكبر من صفر."
-
-                        result = null
-
-                    } else {
-
-                        /*
-                         * حساب مبسط لدائرة أحادية الطور:
-                         *
-                         * ΔV = 2 × L × I × ρ / S
-                         *
-                         * هنا نعرض المقاومة التقريبية
-                         * لكل مقطع، بدون الحاجة لإدخال المقطع.
-                         */
-
-                        val section25 =
-                            (2 * length * current * resistance) / 2.5
-
-                        val section4 =
-                            (2 * length * current * resistance) / 4.0
-
-                        val section6 =
-                            (2 * length * current * resistance) / 6.0
-
-                        result =
-                            "هبوط 2.5 mm²: ${formatNumber(section25)} V\n" +
-                            "هبوط 4 mm²: ${formatNumber(section4)} V\n" +
-                            "هبوط 6 mm²: ${formatNumber(section6)} V"
-
-                        error = null
+                NumberField(
+                    value = voltageText,
+                    label = "الجهد V",
+                    onValueChange = {
+                        voltageText = it
+                        error = ""
                     }
-                },
+                )
+
+                Spacer(
+                    modifier = Modifier.height(10.dp)
+                )
+
+                NumberField(
+                    value = currentText,
+                    label = "التيار A",
+                    onValueChange = {
+                        currentText = it
+                        error = ""
+                    }
+                )
+
+                Spacer(
+                    modifier = Modifier.height(10.dp)
+                )
+
+                NumberField(
+                    value = powerFactorText,
+                    label = "معامل القدرة cos φ",
+                    onValueChange = {
+                        powerFactorText = it
+                        error = ""
+                    }
+                )
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+                Button(
+                    onClick = {
+
+                        val voltage = voltageText.toDoubleOrNull()
+                        val current = currentText.toDoubleOrNull()
+                        val pf = powerFactorText.toDoubleOrNull()
+
+                        if (
+                            voltage == null ||
+                            current == null ||
+                            pf == null ||
+                            voltage <= 0 ||
+                            current <= 0 ||
+                            pf <= 0 ||
+                            pf > 1
+                        ) {
+
+                            error =
+                                "تحقق من الجهد والتيار ومعامل القدرة."
+
+                            result = ""
+
+                        } else {
+
+                            val power = voltage * current * pf
+                            val apparent = voltage * current
+
+                            result =
+                                "القدرة الفعلية: ${formatNumber(power)} W\n" +
+                                "القدرة الظاهرية: ${formatNumber(apparent)} VA\n" +
+                                "القدرة بالكيلوواط: ${formatNumber(power / 1000.0)} kW"
+
+                            error = ""
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("احسب")
+                }
+            }
+
+            if (error.isNotEmpty()) {
+                ErrorBox(error)
+            }
+
+            if (result.isNotEmpty()) {
+                ResultBox(
+                    title = "النتيجة",
+                    text = result
+                )
+            }
+
+            OutlinedButton(
+                onClick = onBack,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("احسب")
+                Text("رجوع")
             }
         }
+    }
+}
 
-        error?.let {
-            ErrorBox(
-                message = it
+/* =========================================================
+   CABLE SCREEN
+   ========================================================= */
+
+@Composable
+fun CableScreen(
+    onBack: () -> Unit
+) {
+
+    var currentText by remember {
+        mutableStateOf("")
+    }
+
+    var lengthText by remember {
+        mutableStateOf("")
+    }
+
+    var result by remember {
+        mutableStateOf("")
+    }
+
+    var error by remember {
+        mutableStateOf("")
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text("حساب مقطع الكابل")
+                }
             )
         }
+    ) { padding ->
 
-        result?.let {
-            ResultBox(
-                title = "النتيجة",
-                message = it
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        SectionBox(
-            title = "🔧 معلومات"
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
 
+            SectionBox(
+                title = "بيانات الكابل"
+            ) {
+
+                NumberField(
+                    value = currentText,
+                    label = "التيار A",
+                    onValueChange = {
+                        currentText = it
+                        error = ""
+                    }
+                )
+
+                Spacer(
+                    modifier = Modifier.height(10.dp)
+                )
+
+                NumberField(
+                    value = lengthText,
+                    label = "طول الخط بالمتر",
+                    onValueChange = {
+                        lengthText = it
+                        error = ""
+                    }
+                )
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+                Button(
+                    onClick = {
+
+                        val current = currentText.toDoubleOrNull()
+                        val length = lengthText.toDoubleOrNull()
+
+                        if (
+                            current == null ||
+                            length == null ||
+                            current <= 0 ||
+                            length <= 0
+                        ) {
+
+                            error = "أدخل التيار والطول بشكل صحيح."
+                            result = ""
+
+                        } else {
+
+                            val section = chooseCableSection(
+                                current = current,
+                                length = length
+                            )
+
+                            result =
+                                "التيار: ${formatNumber(current)} A\n" +
+                                "الطول: ${formatNumber(length)} m\n" +
+                                "المقطع المقترح: ${formatNumber(section)} mm²"
+
+                            error = ""
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("احسب")
+                }
+            }
+
+            if (error.isNotEmpty()) {
+                ErrorBox(error)
+            }
+
+            if (result.isNotEmpty()) {
+                ResultBox(
+                    title = "النتيجة",
+                    text = result
+                )
+            }
+
             Text(
-                text = "يمكن استعمال هذه الصفحة للمقارنة بين مقاطع الكابلات بشكل تقريبي."
+                text = "ملاحظة: اختيار المقطع النهائي يجب أن يأخذ في الاعتبار طريقة التمديد، طول الخط، هبوط الجهد ودرجة الحرارة.",
+                fontSize = 13.sp
             )
+
+            OutlinedButton(
+                onClick = onBack,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("رجوع")
+            }
         }
     }
+}
+
+/* =========================================================
+   NUMBER FIELD
+   ========================================================= */
+
+@Composable
+fun NumberField(
+    value: String,
+    label: String,
+    onValueChange: (String) -> Unit
+) {
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = { newValue ->
+
+            val filtered = newValue.filter {
+                it.isDigit() || it == '.' || it == ','
+            }.replace(',', '.')
+
+            onValueChange(filtered)
+        },
+        label = {
+            Text(label)
+        },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Decimal
+        )
+    )
 }
 
 /* =========================================================
@@ -531,7 +689,7 @@ fun SectionBox(
 
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
 
@@ -545,37 +703,6 @@ fun SectionBox(
 }
 
 /* =========================================================
-   NUMBER FIELD
-   ========================================================= */
-
-@Composable
-fun NumberField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String
-) {
-
-    OutlinedTextField(
-        value = value,
-        onValueChange = { newValue ->
-
-            val filtered = newValue.filter {
-                it.isDigit() || it == '.' || it == ','
-            }
-
-            onValueChange(
-                filtered.replace(',', '.')
-            )
-        },
-        label = {
-            Text(label)
-        },
-        singleLine = true,
-        modifier = Modifier.fillMaxWidth()
-    )
-}
-
-/* =========================================================
    ERROR BOX
    ========================================================= */
 
@@ -585,17 +712,13 @@ fun ErrorBox(
 ) {
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor =
-                MaterialTheme.colorScheme.errorContainer
-        )
+        modifier = Modifier.fillMaxWidth()
     ) {
 
         Text(
-            text = "❌ $message",
+            text = message,
             modifier = Modifier.padding(16.dp),
-            color = MaterialTheme.colorScheme.onErrorContainer
+            fontWeight = FontWeight.Bold
         )
     }
 }
@@ -607,11 +730,14 @@ fun ErrorBox(
 @Composable
 fun ResultBox(
     title: String,
-    message: String
+    text: String
 ) {
 
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 4.dp
+        )
     ) {
 
         Column(
@@ -620,7 +746,7 @@ fun ResultBox(
 
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
 
@@ -635,11 +761,143 @@ fun ResultBox(
             )
 
             Text(
-                text = message,
-                style = MaterialTheme.typography.bodyLarge
+                text = text,
+                fontSize = 17.sp,
+                lineHeight = 25.sp
             )
         }
     }
+}
+
+/* =========================================================
+   CALCULATIONS
+   ========================================================= */
+
+fun chooseBreaker(
+    current: Double
+): Double {
+
+    val breakers = listOf(
+        2.0,
+        4.0,
+        6.0,
+        10.0,
+        16.0,
+        20.0,
+        25.0,
+        32.0,
+        40.0,
+        50.0,
+        63.0,
+        80.0,
+        100.0,
+        125.0,
+        160.0,
+        200.0,
+        250.0,
+        315.0,
+        400.0
+    )
+
+    val designCurrent = current * 1.25
+
+    return breakers.firstOrNull {
+        it >= designCurrent
+    } ?: breakers.last()
+}
+
+fun chooseCableSection(
+    current: Double,
+    length: Double
+): Double {
+
+    /*
+     * جدول تقريبي مبسط للكابلات النحاسية.
+     * القيمة النهائية يجب مراجعتها حسب طريقة التركيب
+     * وهبوط الجهد والظروف الفعلية.
+     */
+
+    val sectionByCurrent = when {
+        current <= 10 -> 1.5
+        current <= 16 -> 2.5
+        current <= 25 -> 4.0
+        current <= 32 -> 6.0
+        current <= 40 -> 10.0
+        current <= 50 -> 10.0
+        current <= 63 -> 16.0
+        current <= 80 -> 25.0
+        current <= 100 -> 35.0
+        current <= 125 -> 50.0
+        current <= 160 -> 70.0
+        current <= 200 -> 95.0
+        current <= 250 -> 120.0
+        current <= 315 -> 150.0
+        current <= 400 -> 240.0
+        else -> 300.0
+    }
+
+    /*
+     * تعويض تقريبي لطول الخط.
+     * إذا كان الخط طويلاً جداً نرفع المقطع.
+     */
+
+    return when {
+        length <= 20 -> sectionByCurrent
+        length <= 40 -> nextCableSection(sectionByCurrent)
+        length <= 60 -> nextCableSection(
+            nextCableSection(sectionByCurrent)
+        )
+        length <= 100 -> nextCableSection(
+            nextCableSection(
+                nextCableSection(sectionByCurrent)
+            )
+        )
+        else -> nextCableSection(
+            nextCableSection(
+                nextCableSection(
+                    nextCableSection(sectionByCurrent)
+                )
+            )
+        )
+    }
+}
+
+fun nextCableSection(
+    section: Double
+): Double {
+
+    val sections = listOf(
+        1.5,
+        2.5,
+        4.0,
+        6.0,
+        10.0,
+        16.0,
+        25.0,
+        35.0,
+        50.0,
+        70.0,
+        95.0,
+        120.0,
+        150.0,
+        185.0,
+        240.0,
+        300.0
+    )
+
+    val index = sections.indexOfFirst {
+        it >= section
+    }
+
+    if (index == -1) {
+        return sections.last()
+    }
+
+    if (index + 1 >= sections.size) {
+        return sections.last()
+    }
+
+    return sections[index + 1]
 }
 
 /* =========================================================
@@ -650,7 +908,7 @@ fun formatNumber(
     value: Double
 ): String {
 
-    if (value.isNaN() || value.isInfinite()) {
+    if (!value.isFinite()) {
         return "0"
     }
 
