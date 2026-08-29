@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.input.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import kotlin.math.sqrt
 import java.util.Locale
 
@@ -30,6 +32,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+/* =========================================================
+   APPLICATION
+   ========================================================= */
 
 @Composable
 fun ElectroAssistantApp() {
@@ -73,13 +79,20 @@ fun ElectroAssistantApp() {
                 "plan" -> PlanScreen(
                     onBack = { page = "home" }
                 )
+
+                else -> HomeScreen(
+                    onCable = { page = "cable" },
+                    onDrop = { page = "drop" },
+                    onBreaker = { page = "breaker" },
+                    onPlan = { page = "plan" }
+                )
             }
         }
     }
 }
 
 /* =========================================================
-   ACCUEIL
+   HOME
    ========================================================= */
 
 @Composable
@@ -185,7 +198,7 @@ fun HomeScreen(
             HomeCard(
                 emoji = "📄",
                 title = "Plan électrique",
-                description = "Voir les modes de pose.",
+                description = "Références des modes de pose.",
                 onClick = onPlan
             )
 
@@ -212,18 +225,18 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "ElectroAssistant est un outil d'aide au "
-                                + "pré-dimensionnement des installations "
-                                + "électriques du bâtiment.",
+                        text = "ElectroAssistant est un outil d'aide au " +
+                                "pré-dimensionnement des installations " +
+                                "électriques du bâtiment.",
                         color = Color.Gray
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
-                        text = "⚠️ Les résultats sont indicatifs et doivent "
-                                + "être vérifiés selon les normes applicables "
-                                + "et les conditions réelles de l'installation.",
+                        text = "⚠️ Les résultats sont indicatifs et doivent " +
+                                "être vérifiés selon les normes applicables " +
+                                "et les conditions réelles de l'installation.",
                         color = Color(0xFF795548),
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -259,7 +272,9 @@ fun HomeCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable {
+                onClick()
+            },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -320,7 +335,7 @@ fun HomeCard(
 }
 
 /* =========================================================
-   SECTION CABLE
+   CABLE SECTION
    ========================================================= */
 
 @Composable
@@ -364,7 +379,9 @@ fun CableScreen(
             .padding(20.dp)
     ) {
 
-        TextButton(onClick = onBack) {
+        TextButton(
+            onClick = onBack
+        ) {
             Text("← Retour")
         }
 
@@ -381,7 +398,9 @@ fun CableScreen(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        SectionBox("⚡ Circuit") {
+        SectionBox(
+            title = "⚡ Circuit"
+        ) {
 
             Text(
                 text = "Type de réseau",
@@ -394,7 +413,9 @@ fun CableScreen(
 
                 RadioButton(
                     selected = !threePhase,
-                    onClick = { threePhase = false }
+                    onClick = {
+                        threePhase = false
+                    }
                 )
 
                 Text("Monophasé")
@@ -403,7 +424,9 @@ fun CableScreen(
 
                 RadioButton(
                     selected = threePhase,
-                    onClick = { threePhase = true }
+                    onClick = {
+                        threePhase = true
+                    }
                 )
 
                 Text("Triphasé")
@@ -422,7 +445,9 @@ fun CableScreen(
 
                 RadioButton(
                     selected = copper,
-                    onClick = { copper = true }
+                    onClick = {
+                        copper = true
+                    }
                 )
 
                 Text("Cuivre")
@@ -431,7 +456,9 @@ fun CableScreen(
 
                 RadioButton(
                     selected = !copper,
-                    onClick = { copper = false }
+                    onClick = {
+                        copper = false
+                    }
                 )
 
                 Text("Aluminium")
@@ -440,7 +467,9 @@ fun CableScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        SectionBox("📊 Paramètres") {
+        SectionBox(
+            title = "📊 Paramètres"
+        ) {
 
             NumberField(
                 value = currentText,
@@ -492,48 +521,4 @@ fun CableScreen(
 
                 try {
 
-                    val current = currentText.toDouble()
-                    val length = lengthText.toDouble()
-                    val voltage = voltageText.toDouble()
-                    val maxDrop = maxDropText.toDouble()
-
-                    if (
-                        current <= 0 ||
-                        length <= 0 ||
-                        voltage <= 0 ||
-                        maxDrop <= 0
-                    ) {
-
-                        error = "Les valeurs doivent être supérieures à zéro."
-                        result = ""
-
-                    } else {
-
-                        val rho = if (copper) {
-                            0.0175
-                        } else {
-                            0.0282
-                        }
-
-                        val factor = if (threePhase) {
-                            sqrt(3.0)
-                        } else {
-                            2.0
-                        }
-
-                        var selectedSection: Double? = null
-                        var selectedDrop = 0.0
-                        var selectedPercent = 0.0
-
-                        for (section in sections) {
-
-                            val resistance =
-                                rho * length / section
-
-                            val drop =
-                                factor * current * resistance
-
-                            val percent =
-                                drop / voltage * 100.0
-
-                            if (percent <= maxDrop
+                    val
